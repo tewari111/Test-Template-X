@@ -1,0 +1,112 @@
+{
+  "info": {
+    "_postman_id": "acbc4319-b489-4d51-9c53-c59b861e3919",
+    "name": "shiftLetSecurity",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "30643085"
+  },
+  "item": [
+    {
+      "name": "http://52.66.198.249:8000/scanOrg",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"git\" : \"bitbucket\",\n    \"access_token\": \"adasd\",\n    \"url\" : \"asds\",\n    \"PRcomment\" : \"asd\",\n    \"blockPR\" : false\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://52.66.198.249:8000/settings",
+          "protocol": "http",
+          "host": ["52", "66", "198", "249"],
+          "port": "8000",
+          "path": ["settings"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://52.66.198.249:8000/getOrgScan",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"git\" : \"asd\",\n    \"access_token\": \"adasd\",\n    \"url\" : \"asds\",\n    \"PRcomment\" : \"asd\",\n    \"blockPR\" : false\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://52.66.198.249:8000/getOrgScan",
+          "protocol": "http",
+          "host": ["52", "66", "198", "249"],
+          "port": "8000",
+          "path": ["getOrgScan"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://52.66.198.249:8000/settings Copy",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"git\" : \"bitbucket\",\n    \"access_token\": \"adasd\",\n    \"url\" : \"asds\",\n    \"PRcomment\" : \"asd\",\n    \"blockPR\" : false\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://52.66.198.249:8000/settings",
+          "protocol": "http",
+          "host": ["52", "66", "198", "249"],
+          "port": "8000",
+          "path": ["settings"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://52.66.198.249:8000/settings",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"git\" : \"asd\",\n    \"access_token\": \"adasd\",\n    \"url\" : \"asds\",\n    \"PRcomment\" : \"asd\",\n    \"blockPR\" : false\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://52.66.198.249:8000/settings",
+          "protocol": "http",
+          "host": ["52", "66", "198", "249"],
+          "port": "8000",
+          "path": ["settings"]
+        }
+      },
+      "response": []
+    }
+  ]
+}

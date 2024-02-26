@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 // import Card from '@mui/material/Card';
 // import { Grid } from '@mui/material';
@@ -28,7 +28,7 @@ import { emptyRows, applyFilter, getComparator } from '../utils';
 
 export default function UserPage() {
   const [page, setPage] = useState(0);
-
+  // const [data, setData] = useState(null);
   const [order, setOrder] = useState('asc');
 
   const [selected, setSelected] = useState([]);
@@ -41,26 +41,43 @@ export default function UserPage() {
 
   const [open, setOpen] = useState(false);
 
-  const[formData, setFormData]=useState({
-    url:'',
-    date:''
+  const [formData, setFormData] = useState({
+    url: '',
+    date: '',
   });
 
-  const handleOpen=() => {
-  setOpen(true);
-      }
-  const handleClose=() => {
-  setOpen(false);
-      }
-  
-  const handleInputChange=(e) => {
-  const {url, value}= e.target;
+  const [responseData, setResponseData] = useState(null);
 
-  setFormData({
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('http://65.1.132.241:8000/getOrgScan');
+        const data = await response.json();
+        setResponseData(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchData();
+  }, []);
+  console.log(responseData);
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleInputChange = (e) => {
+    const { url, value } = e.target;
+
+    setFormData({
       ...formData,
-      [url]: value
-  });
-  }
+      [url]: value,
+    });
+  };
 
   const handleSubmit = () => {
     // Handle form submission here, e.g., send data to backend
@@ -69,7 +86,7 @@ export default function UserPage() {
   };
 
   const handleSort = (event, id) => {
-    console.log(orderBy, id, order)
+    console.log(orderBy, id, order);
     const isAsc = orderBy === id && order === 'asc';
     if (id !== '') {
       setOrder(isAsc ? 'desc' : 'asc');
@@ -126,93 +143,93 @@ export default function UserPage() {
     filterName,
   });
 
-  console.log(order, orderBy)
+  console.log(order, orderBy);
 
   const notFound = !dataFiltered.length && !!filterName;
 
   return (
     <Container>
-      <Stack direction="row" justifyContent="space-between" mb={6} >
-       
+      <Stack direction="row" justifyContent="space-between" mb={6}>
         <Typography variant="h4">Repositories</Typography>
 
-      <FormView 
-        open={!!open}
-        handleClose={handleClose}
-        formData={formData}
-        handleInputChange={handleInputChange}
-        handleSubmit={handleSubmit}
+        <FormView
+          open={!!open}
+          handleClose={handleClose}
+          formData={formData}
+          handleInputChange={handleInputChange}
+          handleSubmit={handleSubmit}
         />
-        <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleOpen}>
+        <Button
+          variant="contained"
+          color="inherit"
+          startIcon={<Iconify icon="eva:plus-fill" />}
+          onClick={handleOpen}
+        >
           Start Org Scan
         </Button>
       </Stack>
-      
 
       {/* <Card> */}
-        <UserTableToolbar
-          numSelected={selected.length}
-          filterName={filterName}
-          onFilterName={handleFilterByName}
-        />
+      <UserTableToolbar
+        numSelected={selected.length}
+        filterName={filterName}
+        onFilterName={handleFilterByName}
+      />
 
-        <Scrollbar>
-          <TableContainer sx={{ overflow: 'unset' }}>
-            <Table sx={{ minWidth: 800 }}>
-              {/* // users data */}
-              <UserTableHead
-                order={order}
-                orderBy={orderBy}
-                rowCount={users.length} 
-                numSelected={selected.length}
-                onRequestSort={handleSort}
-                onSelectAllClick={handleSelectAllClick}
-                headLabel={[
-                  { id: 'name', label: 'Repository Name' },
-                  { id: 'secrets', label: 'Total Secrets' },
-                  { id: 'show', label: 'Show Secrets' },
-                  { id: 'commits', label: 'Total Commits' },
-                  // { id: 'isVerified', label: 'Verified', align: 'center' },
-                  // { id: '' },
-                ]}
-              />
-              <TableBody>
-                {dataFiltered
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((row) => (
-                    <UserTableRow
-                      key={row.id}
-                      name={row.name}
-                      show={row.show}
-                      // status={row.status}
-                      secrets={row.secrets}
-                      avatarUrl={row.avatarUrl}
-                      commits={row.commits}
-                      selected={selected.indexOf(row.name) !== -1}
-                      handleClick={(event) => handleClick(event, row.name)}
-                    />
-                  ))}
-{/* user data */}
-                <TableEmptyRows
-                  height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, users.length)} 
-                />
+      <Scrollbar>
+        <TableContainer sx={{ overflow: 'unset' }}>
+          <Table sx={{ minWidth: 800 }}>
+            {/* // users data */}
+            <UserTableHead
+              order={order}
+              orderBy={orderBy}
+              rowCount={users.length}
+              numSelected={selected.length}
+              onRequestSort={handleSort}
+              onSelectAllClick={handleSelectAllClick}
+              headLabel={[
+                { id: 'name', label: 'Repository Name' },
+                { id: 'secrets', label: 'Total Secrets' },
+                { id: 'show', label: 'Show Secrets' },
+                { id: 'commits', label: 'Total Commits' },
+                // { id: 'isVerified', label: 'Verified', align: 'center' },
+                // { id: '' },
+              ]}
+            />
+            <TableBody>
+              {dataFiltered
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((row) => (
+                  <UserTableRow
+                    key={row.id}
+                    name={row.name}
+                    show={row.show}
+                    // status={row.status}
+                    secrets={row.secrets}
+                    avatarUrl={row.avatarUrl}
+                    commits={row.commits}
+                    selected={selected.indexOf(row.name) !== -1}
+                    handleClick={(event) => handleClick(event, row.name)}
+                  />
+                ))}
+              {/* user data */}
+              <TableEmptyRows height={77} emptyRows={emptyRows(page, rowsPerPage, users.length)} />
 
-                {notFound && <TableNoData query={filterName} />}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Scrollbar>
+              {notFound && <TableNoData query={filterName} />}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Scrollbar>
 
-        <TablePagination
-          page={page}
-          component="div"
-          count={users.length}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handleChangePage}
-          rowsPerPageOptions={[5, 10, 25]}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
+      <TablePagination
+        page={page}
+        component="div"
+        count={users.length}
+        rowsPerPage={rowsPerPage}
+        onPageChange={handleChangePage}
+        rowsPerPageOptions={[5, 10, 25]}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
       {/* </Card> */}
     </Container>
   );
