@@ -10,13 +10,14 @@ import TableBody from '@mui/material/TableBody';
 import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
+import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 
 import { users } from 'src/_mock/user';
 
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 
-import FormView from '../form-popover';
+// import FormView from '../form-popover';
 import TableNoData from '../table-no-data';
 import UserTableRow from '../user-table-row';
 import UserTableHead from '../user-table-head';
@@ -29,6 +30,7 @@ import { emptyRows, applyFilter, getComparator } from '../utils';
 export default function UserPage() {
   const [page, setPage] = useState(0);
   // const [data, setData] = useState(null);
+  // const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
   const [order, setOrder] = useState('asc');
 
   const [selected, setSelected] = useState([]);
@@ -41,50 +43,51 @@ export default function UserPage() {
 
   const [open, setOpen] = useState(false);
 
-  const [formData, setFormData] = useState({
-    url: '',
-    date: '',
-  });
+  // const [formData, setFormData] = useState({
+  //   url: '',
+  //   date: '',
+  // });
 
   const [responseData, setResponseData] = useState([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('http://65.1.132.241:8000/getOrgScan');
-        const data = await response.json();
-        setResponseData(data.repositories);
-      } catch (error) {
-        console.error(error);
-      }
-    };
+  const fetchData = async () => {
+    try {
+      const response = await fetch('http://65.1.132.241:8000/getOrgScan');
+      const data = await response.json();
+      setResponseData(data.repositories);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
+  useEffect(() => {
     fetchData();
   }, []);
 
   console.log(responseData);
 
   const handleOpen = () => {
+    fetchData();
     setOpen(true);
   };
   const handleClose = () => {
     setOpen(false);
   };
 
-  const handleInputChange = (e) => {
-    const { url, value } = e.target;
+  // const handleInputChange = (e) => {
+  //   const { url, value } = e.target;
 
-    setFormData({
-      ...formData,
-      [url]: value,
-    });
-  };
+  //   setFormData({
+  //     ...formData,
+  //     [url]: value,
+  //   });
+  // };
 
-  const handleSubmit = () => {
-    // Handle form submission here, e.g., send data to backend
-    console.log(formData);
-    handleClose();
-  };
+  // const handleSubmit = () => {
+  //   // Handle form submission here, e.g., send data to backend
+  //   console.log(formData);
+  //   handleClose();
+  // };
 
   const handleSort = (event, id) => {
     console.log(orderBy, id, order);
@@ -153,13 +156,18 @@ export default function UserPage() {
       <Stack direction="row" justifyContent="space-between" mb={6}>
         <Typography variant="h4">Repositories</Typography>
 
-        <FormView
-          open={!!open}
-          handleClose={handleClose}
-          formData={formData}
-          handleInputChange={handleInputChange}
-          handleSubmit={handleSubmit}
-        />
+        <Dialog open={!!open} onClose={handleClose}>
+          <DialogTitle>Start Org Scan for fethc api</DialogTitle>
+          <DialogContent>
+            <Typography variant="body1">Started!</Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose} color="primary">
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
+
         <Button
           variant="contained"
           color="inherit"
@@ -206,7 +214,6 @@ export default function UserPage() {
                   show="Show Secrets"
                   status={i}
                   secrets={user.secrets.length}
-                  
                   // avatarUrl={user.avatarUrl}
                   commits={user.totalNoCommits}
                   // selected={selected.indexOf(user.name) !== -1}
