@@ -49,6 +49,7 @@ export default function UserPage() {
   // });
 
   const [responseData, setResponseData] = useState([]);
+  const [scanData, setScanData] = useState([]);
 
   const fetchData = async () => {
     try {
@@ -65,9 +66,21 @@ export default function UserPage() {
   }, []);
 
   console.log(responseData);
+  console.log("ScanOrgData")
+  console.log(scanData);
+
+  const fetchScanData = async () => {
+    try {
+      const response = await fetch('http://65.1.132.241:8000/scanOrg');
+      const data = await response.json();
+      setScanData(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleOpen = () => {
-    fetchData();
+    fetchScanData();
     setOpen(true);
   };
   const handleClose = () => {
@@ -157,7 +170,7 @@ export default function UserPage() {
         <Typography variant="h4">Repositories</Typography>
 
         <Dialog open={!!open} onClose={handleClose}>
-          <DialogTitle>Start Org Scan for fethc api</DialogTitle>
+          <DialogTitle>Start ScanOrg for fethc api</DialogTitle>
           <DialogContent>
             <Typography variant="body1">Started!</Typography>
           </DialogContent>
