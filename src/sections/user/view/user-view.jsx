@@ -105,23 +105,23 @@ export default function UserPage() {
     setSelected([]);
   };
 
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected = [];
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      );
-    }
-    setSelected(newSelected);
-  };
+  // const handleClick = (event, name) => {
+  //   const selectedIndex = selected.indexOf(name);
+  //   let newSelected = [];
+  //   if (selectedIndex === -1) {
+  //     newSelected = newSelected.concat(selected, name);
+  //   } else if (selectedIndex === 0) {
+  //     newSelected = newSelected.concat(selected.slice(1));
+  //   } else if (selectedIndex === selected.length - 1) {
+  //     newSelected = newSelected.concat(selected.slice(0, -1));
+  //   } else if (selectedIndex > 0) {
+  //     newSelected = newSelected.concat(
+  //       selected.slice(0, selectedIndex),
+  //       selected.slice(selectedIndex + 1)
+  //     );
+  //   }
+  //   setSelected(newSelected);
+  // };
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -198,21 +198,22 @@ export default function UserPage() {
               ]}
             />
             <TableBody>
-              {dataFiltered
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row) => (
-                  <UserTableRow
-                    key={row.id}
-                    name={row.name}
-                    show={row.show}
-                    // status={row.status}
-                    secrets={row.secrets}
-                    avatarUrl={row.avatarUrl}
-                    commits={row.commits}
-                    selected={selected.indexOf(row.name) !== -1}
-                    handleClick={(event) => handleClick(event, row.name)}
-                  />
-                ))}
+              {responseData.map((user, i) => (
+                <UserTableRow
+                  key={i}
+                  id={i}
+                  name={user.repository}
+                  show="Show Secrets"
+                  status={i}
+                  secrets={user.secrets.length}
+                  
+                  // avatarUrl={user.avatarUrl}
+                  commits={user.totalNoCommits}
+                  // selected={selected.indexOf(user.name) !== -1}
+                  // handleClick={(event) => handleClick(event, user.name)}
+                />
+              ))}
+
               {/* user data */}
               <TableEmptyRows height={77} emptyRows={emptyRows(page, rowsPerPage, users.length)} />
 

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
 
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
@@ -14,6 +15,7 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 
 // import Label from 'src/components/label';
+
 import Iconify from 'src/components/iconify';
 
 // import SecretDialog from './user-secret-dialog';
@@ -26,9 +28,11 @@ export default function UserTableRow({
   avatarUrl,
   secrets,
   show,
-  commits,
   // status,
+  id,
+  commits,
   handleClick,
+  
 }) {
   const [open, setOpen] = useState(null);
   // const [secret, setData]=useState(null);
@@ -40,6 +44,7 @@ export default function UserTableRow({
   // const closeDialog=() => {
   //   setSecret(false)
   // }
+  const navigate = useNavigate();
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget);
   };
@@ -69,23 +74,19 @@ export default function UserTableRow({
         <TableCell>{secrets}</TableCell>
 
         <TableCell>
-          <Link underline='hover' sx={{my :3}}>
-            <Button 
-            onClick={console.log(selected)}
-             >
-            {show}
+          <Link underline="hover" sx={{ my: 3 }}>
+            <Button
+              onClick={() => {
+                navigate(`/secrets/${id}`);
+              }}
+            >
+              {show}
             </Button>
           </Link>
-
         </TableCell>
 
-        
         {/* <TableCell>{commits}</TableCell> */}
-        <TableCell align="center">
-         
-          {commits ? 'Yes' : 'No'}
-     
-        </TableCell>
+        <TableCell align="center">{commits}</TableCell>
 
         {/* <TableCell>
           <Label color={(status === 'banned' && 'error') || 'success'}>{status}</Label>
@@ -131,4 +132,5 @@ UserTableRow.propTypes = {
   show: PropTypes.any,
   selected: PropTypes.any,
   // status: PropTypes.string,
+  id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };

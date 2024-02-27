@@ -3,6 +3,8 @@ import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 
 import DashboardLayout from 'src/layouts/dashboard';
 
+import ShowSecrets from 'src/sections/user/view/ShowSecrets';
+
 import SettingPage from './components/SettingPage';
 
 export const IndexPage = lazy(() => import('src/pages/app'));
@@ -26,6 +28,7 @@ export default function Router() {
       children: [
         { element: <IndexPage />, index: true },
         { path: 'repos', element: <UserPage /> },
+        { path: '/secrets/:id', element: <ShowSecrets /> },
         { path: 'settings', element: <SettingPage /> },
         { path: 'set', element: <SettingPage /> },
         // { path: 'blog', element: <BlogPage /> },
