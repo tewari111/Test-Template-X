@@ -46,14 +46,14 @@ export default function UserPage() {
     date: '',
   });
 
-  const [responseData, setResponseData] = useState(null);
+  const [responseData, setResponseData] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch('http://65.1.132.241:8000/getOrgScan');
         const data = await response.json();
-        setResponseData(data);
+        setResponseData(data.repositories);
       } catch (error) {
         console.error(error);
       }
@@ -61,6 +61,7 @@ export default function UserPage() {
 
     fetchData();
   }, []);
+
   console.log(responseData);
 
   const handleOpen = () => {
