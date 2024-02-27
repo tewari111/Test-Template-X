@@ -24,7 +24,8 @@ const ShowSecrets = () => {
   }, []);
 
   return (
-    <Container sx={{ width: '100vw' }}>
+    <Container>
+      <Typography variant="h3">Secrets List</Typography>
       <Grid container spacing={2} width="100%">
         {secretsData.map((repository, index) => (
           <Grid item xs={12} md={6} key={index}>
