@@ -10,14 +10,13 @@ import TableBody from '@mui/material/TableBody';
 import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
-import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 
-import { users } from 'src/_mock/user';
+// import { users } from 'src/_mock/user';
 
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 
-// import FormView from '../form-popover';
+import FormView from '../form-popover';
 import TableNoData from '../table-no-data';
 import UserTableRow from '../user-table-row';
 import UserTableHead from '../user-table-head';
@@ -29,8 +28,7 @@ import { emptyRows, applyFilter, getComparator } from '../utils';
 
 export default function UserPage() {
   const [page, setPage] = useState(0);
-  // const [data, setData] = useState(null);
-  // const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
+
   const [order, setOrder] = useState('asc');
 
   const [selected, setSelected] = useState([]);
@@ -43,13 +41,13 @@ export default function UserPage() {
 
   const [open, setOpen] = useState(false);
 
-  // const [formData, setFormData] = useState({
-  //   url: '',
-  //   date: '',
-  // });
+  const[formData, setFormData]=useState({
+    url:'',
+    date:''
+  });
+
 
   const [responseData, setResponseData] = useState([]);
-  const [scanData, setScanData] = useState([]);
 
   const fetchData = async () => {
     try {
@@ -65,45 +63,34 @@ export default function UserPage() {
     fetchData();
   }, []);
 
+  console.log(responseData)
   console.log(responseData);
-  console.log("ScanOrgData")
-  console.log(scanData);
 
-  const fetchScanData = async () => {
-    try {
-      const response = await fetch('http://65.1.132.241:8000/scanOrg');
-      const data = await response.json();
-      setScanData(data);
-    } catch (error) {
-      console.error(error);
-    }
+
+  const handleOpen=() => {
+  setOpen(true);
+      }
+  const handleClose=() => {
+  setOpen(false);
+      }
+  
+  const handleInputChange=(e) => {
+  const {url, value}= e.target;
+
+  setFormData({
+      ...formData,
+      [url]: value
+  });
+  }
+
+  const handleSubmit = () => {
+    // Handle form submission here, e.g., send data to backend
+    console.log(formData);
+    handleClose();
   };
-
-  const handleOpen = () => {
-    fetchScanData();
-    setOpen(true);
-  };
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  // const handleInputChange = (e) => {
-  //   const { url, value } = e.target;
-
-  //   setFormData({
-  //     ...formData,
-  //     [url]: value,
-  //   });
-  // };
-
-  // const handleSubmit = () => {
-  //   // Handle form submission here, e.g., send data to backend
-  //   console.log(formData);
-  //   handleClose();
-  // };
 
   const handleSort = (event, id) => {
-    console.log(orderBy, id, order);
+    console.log(orderBy, id, order)
     const isAsc = orderBy === id && order === 'asc';
     if (id !== '') {
       setOrder(isAsc ? 'desc' : 'asc');
@@ -114,30 +101,30 @@ export default function UserPage() {
   // Users data used here, change with api call data
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = users.map((n) => n.name);
+      const newSelecteds = responseData.map((n) => n.repository);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
 
-  // const handleClick = (event, name) => {
-  //   const selectedIndex = selected.indexOf(name);
-  //   let newSelected = [];
-  //   if (selectedIndex === -1) {
-  //     newSelected = newSelected.concat(selected, name);
-  //   } else if (selectedIndex === 0) {
-  //     newSelected = newSelected.concat(selected.slice(1));
-  //   } else if (selectedIndex === selected.length - 1) {
-  //     newSelected = newSelected.concat(selected.slice(0, -1));
-  //   } else if (selectedIndex > 0) {
-  //     newSelected = newSelected.concat(
-  //       selected.slice(0, selectedIndex),
-  //       selected.slice(selectedIndex + 1)
-  //     );
-  //   }
-  //   setSelected(newSelected);
-  // };
+  const handleClick = (event, name) => {
+    const selectedIndex = selected.indexOf(name);
+    let newSelected = [];
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selected, name);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selected.slice(1));
+    } else if (selectedIndex === selected.length - 1) {
+      newSelected = newSelected.concat(selected.slice(0, -1));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selected.slice(0, selectedIndex),
+        selected.slice(selectedIndex + 1)
+      );
+    }
+    setSelected(newSelected);
+  };
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -155,103 +142,98 @@ export default function UserPage() {
 
   // users data change with api data
   const dataFiltered = applyFilter({
-    inputData: users,
+    inputData: responseData,
     comparator: getComparator(order, orderBy),
     filterName,
   });
 
-  console.log(order, orderBy);
+  console.log(order, orderBy)
 
   const notFound = !dataFiltered.length && !!filterName;
 
   return (
     <Container>
-      <Stack direction="row" justifyContent="space-between" mb={6}>
+      <Stack direction="row" justifyContent="space-between" mb={6} >
+       
         <Typography variant="h4">Repositories</Typography>
 
-        <Dialog open={!!open} onClose={handleClose}>
-          <DialogTitle>Start ScanOrg for fethc api</DialogTitle>
-          <DialogContent>
-            <Typography variant="body1">Started!</Typography>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose} color="primary">
-              Close
-            </Button>
-          </DialogActions>
-        </Dialog>
-
-        <Button
-          variant="contained"
-          color="inherit"
-          startIcon={<Iconify icon="eva:plus-fill" />}
-          onClick={handleOpen}
-        >
+      <FormView 
+        open={!!open}
+        handleClose={handleClose}
+        formData={formData}
+        handleInputChange={handleInputChange}
+        handleSubmit={handleSubmit}
+        />
+        <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleOpen}>
           Start Org Scan
         </Button>
       </Stack>
+      
 
       {/* <Card> */}
-      <UserTableToolbar
-        numSelected={selected.length}
-        filterName={filterName}
-        onFilterName={handleFilterByName}
-      />
+        <UserTableToolbar
+          numSelected={selected.length}
+          filterName={filterName}
+          onFilterName={handleFilterByName}
+        />
 
-      <Scrollbar>
-        <TableContainer sx={{ overflow: 'unset' }}>
-          <Table sx={{ minWidth: 800 }}>
-            {/* // users data */}
-            <UserTableHead
-              order={order}
-              orderBy={orderBy}
-              rowCount={users.length}
-              numSelected={selected.length}
-              onRequestSort={handleSort}
-              onSelectAllClick={handleSelectAllClick}
-              headLabel={[
-                { id: 'name', label: 'Repository Name' },
-                { id: 'secrets', label: 'Total Secrets' },
-                { id: 'show', label: 'Show Secrets' },
-                { id: 'commits', label: 'Total Commits' },
-                // { id: 'isVerified', label: 'Verified', align: 'center' },
-                // { id: '' },
-              ]}
-            />
-            <TableBody>
-              {responseData.map((user, i) => (
-                <UserTableRow
-                  key={i}
-                  id={i}
-                  name={user.repository}
-                  show="Show Secrets"
-                  status={i}
-                  secrets={user.secrets.length}
-                  // avatarUrl={user.avatarUrl}
-                  commits={user.totalNoCommits}
-                  // selected={selected.indexOf(user.name) !== -1}
-                  // handleClick={(event) => handleClick(event, user.name)}
+        <Scrollbar>
+          <TableContainer sx={{ overflow: 'unset' }}>
+            <Table sx={{ minWidth: 800 }}>
+              {/* // users data */}
+              <UserTableHead
+                order={order}
+                orderBy={orderBy}
+                rowCount={responseData.length} 
+                numSelected={selected.length}
+                onRequestSort={handleSort}
+                onSelectAllClick={handleSelectAllClick}
+                headLabel={[
+                  { id: 'name', label: 'Repository Name' },
+                  { id: 'secrets', label: 'Total Secrets' },
+                  { id: 'show', label: 'Show Secrets' },
+                  { id: 'commits', label: 'Total Commits' },
+                  // { id: 'isVerified', label: 'Verified', align: 'center' },
+                  // { id: '' },
+                ]}
+              />
+              <TableBody>
+                {dataFiltered
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row,i) => (
+                    <UserTableRow
+                      key={i}
+                      name={row.repository}
+                      show="Show secrets"
+                      status={i}
+                      secrets={row.secrets.length}
+                      // avatarUrl={row.avatarUrl}
+                      commits={row.totalNoCommits}
+                      selected={selected.indexOf(row.repository) !== -1}
+                      handleClick={(event) => handleClick(event, row.repository)}
+                    />
+                  ))}
+{/* user data */}
+                <TableEmptyRows
+                  height={77}
+                  emptyRows={emptyRows(page, rowsPerPage, responseData.length)} 
                 />
-              ))}
 
-              {/* user data */}
-              <TableEmptyRows height={77} emptyRows={emptyRows(page, rowsPerPage, users.length)} />
+                {notFound && <TableNoData query={filterName} />}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Scrollbar>
 
-              {notFound && <TableNoData query={filterName} />}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Scrollbar>
-
-      <TablePagination
-        page={page}
-        component="div"
-        count={users.length}
-        rowsPerPage={rowsPerPage}
-        onPageChange={handleChangePage}
-        rowsPerPageOptions={[5, 10, 25]}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
+        <TablePagination
+          page={page}
+          component="div"
+          count={responseData.length}
+          rowsPerPage={rowsPerPage}
+          onPageChange={handleChangePage}
+          rowsPerPageOptions={[5, 10, 25]}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
       {/* </Card> */}
     </Container>
   );
