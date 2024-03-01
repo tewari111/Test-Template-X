@@ -72,7 +72,7 @@ const SettingPage = () => {
   return (
     <Container>
       <Typography padding={4} pl={0} variant="h4">
-        SettingPage &minus;&gt; Config
+        Configuration
       </Typography>
       <form onSubmit={handleSubmit}>
         <TextField name="git" label="Git" value={formData.git} onChange={handleChange} fullWidth />
