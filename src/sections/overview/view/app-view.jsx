@@ -194,7 +194,7 @@ export default function AppView() {
         </Grid> */}
         {/* @TODO change the logo */}
         <Grid xs={12} md={6} lg={8}>
-          <LineChart width={500} height={300} data={data}>
+          <LineChart width={500} height={400} data={data}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="secrets" label="Secretes" />
             <YAxis dataKey="repos" label="" />

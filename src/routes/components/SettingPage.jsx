@@ -21,6 +21,16 @@ const SettingPage = () => {
   });
 
   const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
+  const [messages, setMessages] = useState([]);
+
+  useEffect(() => {
+    const storedMessages = JSON.parse(localStorage.getItem('postRequestMessages'));
+    if (storedMessages) {
+      setMessages(storedMessages);
+    }
+  }, []);
+
+  console.log(messages);
 
   useEffect(() => {
     fetchData();
@@ -46,6 +56,15 @@ const SettingPage = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    const currentTime = new Date().toLocaleTimeString();
+    const currentDate = new Date().toLocaleDateString();
+    const newMessageEntry = `You done post request: ${currentDate} ${currentTime}`;
+
+    const updatedMessages = [...messages, newMessageEntry];
+    setMessages(updatedMessages);
+    localStorage.setItem('postRequestMessages', JSON.stringify(updatedMessages));
+
     try {
       const response = await fetch('http://65.1.132.241:8000/settings', {
         method: 'POST', // or 'PUT' if applicable

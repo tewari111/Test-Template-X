@@ -251,6 +251,7 @@ export default function UserPage() {
                 .map((row, i) => (
                   <UserTableRow
                     key={i}
+                    id={i}
                     name={row.repository}
                     show="Show secrets"
                     status={i}
