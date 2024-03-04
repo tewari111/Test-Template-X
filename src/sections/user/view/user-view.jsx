@@ -95,18 +95,9 @@ export default function UserPage() {
 
   const totalReposPercent = (scanData.length / totalRepos.totalRepos) * 100 || 0;
 
-  // const handleInputChange = (e) => {
-  //   const { url, value } = e.target;
-
-  //   setFormData({
-  //     ...formData,
-  //     [url]: value,
-  //   });
-  // };
-
   // const handleSubmit = () => {
   //   // Handle form submission here, e.g., send data to backend
-  //   console.log(formData);
+  //   // console.log(formData);
   //   handleClose();
   // };
 
@@ -125,12 +116,6 @@ export default function UserPage() {
   //     ...formData,
   //     [url]: value,
   //   });
-  // };
-
-  // const handleSubmit = () => {
-  //   // Handle form submission here, e.g., send data to backend
-  //   console.log(formData);
-  //   handleClose();
   // };
 
   const handleSort = (event, id) => {
@@ -153,7 +138,7 @@ export default function UserPage() {
   };
 
   const handleClick = (event, name) => {
-    console.log(name)
+    console.log(name);
     const selectedIndex = selected.indexOf(name);
     let newSelected = [];
     if (selectedIndex === -1) {
@@ -192,7 +177,8 @@ export default function UserPage() {
     filterName,
   });
 
-  console.log(order, orderBy);
+  // console.log(formData);
+  // console.log(order, orderBy);
 
   const notFound = !dataFiltered.length && !!filterName;
 
