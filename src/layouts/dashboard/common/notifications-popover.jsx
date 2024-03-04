@@ -76,7 +76,15 @@ export default function NotificationsPopover() {
           <Box sx={{ flexGrow: 1 }}>
             <Typography variant="subtitle1">Your History</Typography>
             {messages.map((message, index) => (
-              <Typography variant="body2" sx={{ color: 'text.secondary' }} key={index}>
+              <Typography
+                variant="body2"
+                key={index}
+                sx={{
+                  color: 'text.secondary',
+                  borderBottom: '1px solid gray',
+                  mt: 5,
+                }}
+              >
                 {message}
               </Typography>
             ))}

@@ -59,7 +59,7 @@ const SettingPage = () => {
 
     const currentTime = new Date().toLocaleTimeString();
     const currentDate = new Date().toLocaleDateString();
-    const newMessageEntry = `You done post request: ${currentDate} ${currentTime}`;
+    const newMessageEntry = `Configs updated: ${currentDate} ${currentTime}`;
 
     const updatedMessages = [...messages, newMessageEntry];
     setMessages(updatedMessages);

@@ -21,10 +21,11 @@ export default function UserTableHead({
   onSelectAllClick,
 }) {
   const onSort = (property) => (event) => {
-    console.log(event, property)
+    console.log(event, property);
     onRequestSort(event, property);
   };
 
+  console.log(headLabel);
   return (
     <TableHead>
       <TableRow>
@@ -42,8 +43,8 @@ export default function UserTableHead({
             align={headCell.align || 'left'}
             sortDirection={orderBy === headCell.id ? order : false}
             sx={{ width: headCell.width, minWidth: headCell.minWidth }}
-          > 
-          {/* {console.log(orderBy === headCell.id, orderBy, headCell.id)} */}
+          >
+            {/* {console.log(orderBy === headCell.id, orderBy, headCell.id)} */}
             <TableSortLabel
               hideSortIcon
               active={orderBy === headCell.id}

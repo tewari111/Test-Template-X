@@ -32,9 +32,9 @@ export default function UserTableRow({
   id,
   commits,
   handleClick,
-  
 }) {
   const [open, setOpen] = useState(null);
+
   // const [secret, setData]=useState(null);
 
   // const openDialog= () => {
@@ -45,11 +45,25 @@ export default function UserTableRow({
   //   setSecret(false)
   // }
   const navigate = useNavigate();
+  const [messages, setMessages] = useState([]);
+
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget);
   };
 
-  const handleCloseMenu = () => {
+  const handleCloseMenu = async () => {
+    const currentTime = new Date().toLocaleTimeString();
+    const currentDate = new Date().toLocaleDateString();
+    const newMessageEntry = `Org scan started!: ${currentDate} ${currentTime}`;
+    const updatedMessages = [...messages, newMessageEntry];
+    setMessages(updatedMessages);
+    localStorage.setItem('postRequestMessages', JSON.stringify(updatedMessages));
+    try {
+      await fetch('http://65.1.132.241:8000/scanOrg');
+    } catch (error) {
+      console.error(error);
+    }
+
     setOpen(null);
   };
 
@@ -110,7 +124,7 @@ export default function UserTableRow({
         }}
       >
         <MenuItem onClick={handleCloseMenu}>
-          <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
+          <Iconify icon="eva:refresh-fill" sx={{ mr: 2 }} />
           re-scan
         </MenuItem>
       </Popover>

@@ -5,9 +5,7 @@ import { Card, Grid, Container, Typography, CardContent } from '@mui/material';
 
 const ShowSecrets = () => {
   const [secretsData, setSecretsData] = useState([]);
-
   const { id } = useParams();
-  console.log('id: ', id);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,16 +23,15 @@ const ShowSecrets = () => {
 
   return (
     <Container>
-      <Typography variant="h3">Secrets List</Typography>
-      <Grid container spacing={2} width="100%">
+      <Grid container spacing={2}>
         {secretsData.map((repository, index) => (
           <Grid item xs={12} md={6} key={index}>
             {Number(id) === Number(index) && (
-              <Card sx={{ width: '60vw' }}>
+              <Grid sx={{ width: '70vw' }}>
+                <Typography variant="h4" component="h1" padding="5px" ml={1} mt={1}>
+                  {repository.repository} Secretes
+                </Typography>
                 <CardContent>
-                  <Typography variant="h5" component="h1" padding="10px">
-                    {repository.repository}
-                  </Typography>
                   <Grid container spacing={2}>
                     {repository.secrets.map((secret, secretIndex) => (
                       <Grid item xs={12} key={secretIndex}>
@@ -47,16 +44,29 @@ const ShowSecrets = () => {
                             <Typography variant="body2">Commit: {secret.Commit}</Typography>
                             <Typography variant="body2">Date: {secret.Date}</Typography>
                             <Typography variant="body2">Email: {secret.Email}</Typography>
-                            <Typography variant="body2">File: {secret.File}</Typography>
-                            <Typography variant="body2">Rule ID: {secret.RuleID}</Typography>
-                            <Typography variant="body2">Secret: {secret.Secret}</Typography>
+                            <Typography variant="body2">EndColumn: {secret.EndColumn}</Typography>
+                            <Typography variant="body2">EndLine: {secret.EndLine}</Typography>
+                            <Typography variant="body2">Entropy: {secret.Entropy}</Typography>
+                            <Typography variant="body2">
+                              Fingerprint: {secret.Fingerprint}
+                            </Typography>
+                            <Typography variant="body2">Match: {secret.Match}</Typography>
+                            <Typography variant="body2">Message: {secret.Message}</Typography>
+                            <Typography variant="body2">RuleID: {secret.RuleID}</Typography>
+                            <Typography variant="body2">
+                              StartColumn: {secret.StartColumn}
+                            </Typography>
+                            <Typography variant="body2">StartLine: {secret.StartLine}</Typography>
+                            <Typography variant="body2">
+                              SymlinkFile : {secret.SymlinkFile}
+                            </Typography>
                           </CardContent>
                         </Card>
                       </Grid>
                     ))}
                   </Grid>
                 </CardContent>
-              </Card>
+              </Grid>
             )}
           </Grid>
         ))}

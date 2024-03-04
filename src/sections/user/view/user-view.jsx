@@ -48,7 +48,7 @@ export default function UserPage() {
 
   const [scanData, setScanData] = useState([]);
   const [totalRepos, setTotalRepos] = useState([]);
-
+  const [messages, setMessages] = useState([]);
   useEffect(() => {
     fetchTotlaRepos();
     fetchScanData();
@@ -78,6 +78,14 @@ export default function UserPage() {
   };
 
   const fetchScanOrg = async () => {
+    const currentTime = new Date().toLocaleTimeString();
+    const currentDate = new Date().toLocaleDateString();
+    const newMessageEntry = `Org scan started!: ${currentDate} ${currentTime}`;
+
+    const updatedMessages = [...messages, newMessageEntry];
+    setMessages(updatedMessages);
+    localStorage.setItem('postRequestMessages', JSON.stringify(updatedMessages));
+
     try {
       await fetch('http://65.1.132.241:8000/scanOrg');
     } catch (error) {
@@ -145,6 +153,7 @@ export default function UserPage() {
   };
 
   const handleClick = (event, name) => {
+    console.log(name)
     const selectedIndex = selected.indexOf(name);
     let newSelected = [];
     if (selectedIndex === -1) {

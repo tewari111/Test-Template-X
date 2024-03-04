@@ -25,6 +25,8 @@
     "@iconify/react": "^4.1.1",
     "@mui/lab": "^5.0.0-alpha.147",
     "@mui/material": "^5.15.11",
+    "@mui/system": "^5.15.11",
+    "@mui/x-charts": "^6.19.5",
     "@mui/x-date-pickers": "^6.19.4",
     "apexcharts": "^3.43.0",
     "date-fns": "^2.30.0",
@@ -58,5 +60,6 @@
     "prettier": "^3.0.3",
     "vite": "^4.4.11",
     "vite-plugin-checker": "^0.6.2"
-  }
+  },
+  "packageManager": "yarn@4.1.0"
 }
