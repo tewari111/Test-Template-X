@@ -242,7 +242,7 @@ export default function AppView() {
 
         <Grid xs={12} md={6} lg={4}>
           <AppCurrentVisits
-            title="Disclosed Secrets"
+            title="Repos Ratio"
             chart={{
               series: pieChartData,
             }}

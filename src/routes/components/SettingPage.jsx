@@ -82,7 +82,7 @@ const SettingPage = () => {
   };
 
   return (
-    <Container>
+    <Container sx={{ margin: '0px auto', width: { lg: '50svw' } }}>
       <Typography padding={4} pl={0} variant="h4">
         Configuration
       </Typography>
