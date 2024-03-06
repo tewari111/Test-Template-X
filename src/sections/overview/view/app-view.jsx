@@ -90,7 +90,7 @@ export default function AppView() {
 
   const pieChartData = scanData.map((item, index) => ({
     label: item.repository,
-    value: ((item.secrets.length + 1) / totalSecrets) * 100,
+    value: (item.secrets.length / totalSecrets) * 100,
   }));
 
   // console.log('pie chart', pieChartData);
@@ -98,22 +98,23 @@ export default function AppView() {
   // const data = [4000, 3000, 2000, null, 1890, 2390, 3490];
   // const xData = ['Page A', 'Page B', 'Page C', 'Page D', 'Page E', 'Page F', 'Page G'];
 
+  const yData = [];
   const dates = getStorageData.map((item, i) => {
     const dateString = item.split('Org scan started!: ')[1]; // Extract the portion after the colon and space
     const date = dateString;
+    if (i === 0) {
+      yData.push(i);
+    } else {
+      yData.push(secretRatio);
+    }
+
     return date;
   });
-
-  const yData = scanData
-    .slice(0, dates.length)
-    .map((item) => (item.secrets.length + 1) / totalSecrets);
-
-  // console.log('yData', yData);
-  // console.log(dates);
 
   const data = yData;
   const xData = dates;
 
+  console.log(dates);
   const handleOpen = async () => {
     fetchScanOrg();
     setOpen(true);

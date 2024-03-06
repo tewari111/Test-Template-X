@@ -249,7 +249,7 @@ export default function UserPage() {
               onRequestSort={handleSort}
               onSelectAllClick={handleSelectAllClick}
               headLabel={[
-                { id: 'name', label: 'Repository Name' },
+                { id: 'repository', label: 'Repository Name' },
                 { id: 'secrets', label: 'Total Secrets' },
                 { id: 'show', label: 'Show Secrets' },
                 { id: 'commits', label: 'Total Commits' },

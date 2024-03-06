@@ -1,10 +1,27 @@
 import { useParams } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 
-import { Card, Grid, Container, Typography, CardContent } from '@mui/material';
+import {
+  Box,
+  Card,
+  Grid,
+  Popover,
+  MenuItem,
+  Button,
+  Checkbox,
+  FormGroup,
+  Container,
+  Typography,
+  IconButton,
+  CardContent,
+  FormControlLabel,
+} from '@mui/material';
+import Iconify from 'src/components/iconify';
+// import Iconify from 'src/components/iconify';
 
 const ShowSecrets = () => {
   const [secretsData, setSecretsData] = useState([]);
+  const [open, setOpen] = useState(null);
   const { id } = useParams();
 
   useEffect(() => {
@@ -21,6 +38,14 @@ const ShowSecrets = () => {
     fetchData();
   }, []);
 
+  const handleOpenMenu = async (event) => {
+    setOpen(event.currentTarget);
+  };
+
+  const handleCloseMenu = () => {
+    setOpen(null);
+  };
+
   return (
     <Container>
       <Grid>
@@ -36,17 +61,41 @@ const ShowSecrets = () => {
                   ml={1}
                   mt={1}
                 >
-                  {repository.repository} Secretes
+                  {repository.repository} Secrets
                 </Typography>
                 <CardContent>
                   <Grid container spacing={2}>
                     {repository.secrets.map((secret, secretIndex) => (
-                      <Grid item xs={12} key={secretIndex}>
+                      <Grid item xs={12} key={secretIndex} alignItems="start" display="flex">
+                        <FormGroup>
+                          <FormControlLabel control={<Checkbox />} />
+                        </FormGroup>
                         <Card variant="outlined">
                           <CardContent>
-                            <Typography variant="subtitle1">
-                              Description: {secret.Description}
-                            </Typography>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                              <Typography variant="subtitle1">
+                                Description: {secret.Description}
+                              </Typography>
+                              <IconButton onClick={handleOpenMenu} sx={{ height: '20px' }}>
+                                <Iconify icon="eva:more-vertical-fill" />
+                              </IconButton>
+
+                              <Popover
+                                open={!!open}
+                                anchorEl={open}
+                                onClose={handleCloseMenu}
+                                anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+                                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                                PaperProps={{
+                                  sx: { width: 140 },
+                                }}
+                              >
+                                <MenuItem onClick={handleCloseMenu}>
+                                  <Iconify icon="eva:refresh-fill" sx={{ mr: 2 }} />
+                                  <Button>Re-Scan</Button>
+                                </MenuItem>
+                              </Popover>
+                            </Box>
                             <Typography variant="body2">Author: {secret.Author}</Typography>
                             <Typography variant="body2">Commit: {secret.Commit}</Typography>
                             <Typography variant="body2">Date: {secret.Date}</Typography>

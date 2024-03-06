@@ -24,7 +24,7 @@ export default function UserTableHead({
     console.log(event, property);
     onRequestSort(event, property);
   };
-  console.log('HeadLabel', headLabel);
+
   return (
     <TableHead>
       <TableRow>
@@ -51,7 +51,7 @@ export default function UserTableHead({
               onClick={onSort(headCell.id)}
             >
               {headCell.label}
-              {/* {console.log(order)} */}
+              {console.log('order: ', order)}
               {orderBy === headCell.id ? (
                 <Box sx={{ ...visuallyHidden }}>
                   {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
