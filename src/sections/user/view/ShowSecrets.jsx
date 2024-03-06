@@ -5,9 +5,9 @@ import {
   Box,
   Card,
   Grid,
-  Popover,
-  MenuItem,
+  Menu,
   Button,
+  MenuItem,
   Checkbox,
   FormGroup,
   Container,
@@ -16,12 +16,13 @@ import {
   CardContent,
   FormControlLabel,
 } from '@mui/material';
+
 import Iconify from 'src/components/iconify';
 // import Iconify from 'src/components/iconify';
 
 const ShowSecrets = () => {
   const [secretsData, setSecretsData] = useState([]);
-  const [open, setOpen] = useState(null);
+  const [anchorEl, setAnchorEl] = React.useState(null);
   const { id } = useParams();
 
   useEffect(() => {
@@ -38,16 +39,29 @@ const ShowSecrets = () => {
     fetchData();
   }, []);
 
-  const handleOpenMenu = async (event) => {
-    setOpen(event.currentTarget);
+  const open = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
   };
-
-  const handleCloseMenu = () => {
-    setOpen(null);
+  const handleClose = () => {
+    setAnchorEl(null);
   };
 
   return (
     <Container>
+      <Menu
+        id="basic-menu"
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        MenuListProps={{
+          'aria-labelledby': 'basic-button',
+        }}
+      >
+        <MenuItem onClick={handleClose}>
+          <Button startIcon={<Iconify icon="eva:refresh-fill" sx={{ mr: 2 }} />}>Re-Scan</Button>
+        </MenuItem>
+      </Menu>
       <Grid>
         {secretsData.map((repository, index) => (
           <Grid item xs={12} md={6} key={index}>
@@ -58,7 +72,7 @@ const ShowSecrets = () => {
                   component="h1"
                   sx={{ display: repository.secrets.length === 0 ? 'none' : 'block' }}
                   padding="5px"
-                  ml={1}
+                  ml={7}
                   mt={1}
                 >
                   {repository.repository} Secrets
@@ -76,25 +90,16 @@ const ShowSecrets = () => {
                               <Typography variant="subtitle1">
                                 Description: {secret.Description}
                               </Typography>
-                              <IconButton onClick={handleOpenMenu} sx={{ height: '20px' }}>
+                              <IconButton
+                                id="basic-button"
+                                aria-controls={open ? 'basic-menu' : undefined}
+                                aria-haspopup="true"
+                                aria-expanded={open ? 'true' : undefined}
+                                onClick={handleClick}
+                                sx={{ height: '20px' }}
+                              >
                                 <Iconify icon="eva:more-vertical-fill" />
                               </IconButton>
-
-                              <Popover
-                                open={!!open}
-                                anchorEl={open}
-                                onClose={handleCloseMenu}
-                                anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-                                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-                                PaperProps={{
-                                  sx: { width: 140 },
-                                }}
-                              >
-                                <MenuItem onClick={handleCloseMenu}>
-                                  <Iconify icon="eva:refresh-fill" sx={{ mr: 2 }} />
-                                  <Button>Re-Scan</Button>
-                                </MenuItem>
-                              </Popover>
                             </Box>
                             <Typography variant="body2">Author: {secret.Author}</Typography>
                             <Typography variant="body2">Commit: {secret.Commit}</Typography>

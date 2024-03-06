@@ -249,11 +249,11 @@ export default function UserPage() {
               onRequestSort={handleSort}
               onSelectAllClick={handleSelectAllClick}
               headLabel={[
-                { id: 'repository', label: 'Repository Name' },
+                { id: 'repository', label: 'Repository Name', sortable: true },
                 { id: 'secrets', label: 'Total Secrets' },
                 { id: 'show', label: 'Show Secrets' },
                 { id: 'commits', label: 'Total Commits' },
-                // { id: 'isVerified', label: 'Verified', align: 'center' },
+                { id: 'isVerified', label: 'Verified', align: 'center' },
                 // { id: '' },
               ]}
             />

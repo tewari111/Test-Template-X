@@ -13,8 +13,7 @@ import MenuItem from '@mui/material/MenuItem';
 import TableCell from '@mui/material/TableCell';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
-
-// import Label from 'src/components/label';
+import { Dialog, DialogTitle, DialogActions } from '@mui/material';
 
 import Iconify from 'src/components/iconify';
 
@@ -34,19 +33,22 @@ export default function UserTableRow({
   handleClick,
 }) {
   const [open, setOpen] = useState(null);
-
+  const [openDialog, setOpenDialog] = useState(false);
   // const [secret, setData]=useState(null);
-
-  // const openDialog= () => {
-  //   setSecret(true);
-  // }
-
-  // const closeDialog=() => {
-  //   setSecret(false)
-  // }
   const navigate = useNavigate();
-
+  console.log('Name: ', name);
   const reScan = async () => {
+    const currentTime = new Date().toLocaleTimeString();
+    const currentDate = new Date().toLocaleDateString();
+    const newMessageEntry = `Org scan started!: ${currentDate} ${currentTime}`;
+
+    // Retrieve the existing messages array from localStorage
+    const storedMessages = localStorage.getItem('postRequestMessages');
+    const messages = storedMessages ? JSON.parse(storedMessages) : [];
+
+    const updatedMessages = [...messages, newMessageEntry];
+    localStorage.setItem('postRequestMessages', JSON.stringify(updatedMessages));
+    handleOpenDialog();
     fetch('http://65.1.132.241:8000/scanRepo', {
       method: 'POST',
       headers: {
@@ -54,7 +56,14 @@ export default function UserTableRow({
       },
       body: JSON.stringify(Array(name)),
     })
-      .then((response) => response.json())
+      .then((response) => {
+        if (response.ok) {
+          setOpenDialog(false);
+          return response.json();
+        }
+
+        return response;
+      })
       .then((data) => console.log(data))
       .catch((error) => console.error(error));
   };
@@ -65,6 +74,14 @@ export default function UserTableRow({
 
   const handleCloseMenu = () => {
     setOpen(null);
+  };
+
+  const handleOpenDialog = () => {
+    setOpenDialog(true);
+  };
+
+  const handelCloseDialog = () => {
+    setOpenDialog(false);
   };
 
   return (
@@ -124,10 +141,20 @@ export default function UserTableRow({
         }}
       >
         <MenuItem onClick={handleCloseMenu}>
-          <Iconify icon="eva:refresh-fill" sx={{ mr: 2 }} />
-          <Button onClick={reScan}>Re-Scan</Button>
+          <Button startIcon={<Iconify icon="eva:refresh-fill" sx={{ mr: 2 }} />} onClick={reScan}>
+            Re-Scan
+          </Button>
         </MenuItem>
       </Popover>
+
+      <Dialog open={!!openDialog} onClose={handelCloseDialog}>
+        <DialogTitle>Org scan started for {name}</DialogTitle>
+        <DialogActions>
+          <Button onClick={handelCloseDialog} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }
