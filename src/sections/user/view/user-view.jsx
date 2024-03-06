@@ -54,9 +54,6 @@ export default function UserPage() {
     fetchScanData();
   }, []);
 
-  // console.log(responseData);
-  console.log(scanData);
-
   const fetchScanData = async () => {
     try {
       const response = await fetch('http://65.1.132.241:8000/getOrgScan');
@@ -77,6 +74,7 @@ export default function UserPage() {
     }
   };
 
+  console.log(scanData);
   const fetchScanOrg = async () => {
     const currentTime = new Date().toLocaleTimeString();
     const currentDate = new Date().toLocaleDateString();
@@ -144,6 +142,16 @@ export default function UserPage() {
     }
   };
 
+  const sortDataAsc = () => {
+    const sortedData = [...scanData].sort((a, b) => a.repository.localeCompare(b.repository));
+    setScanData(sortedData);
+  };
+
+  const sortDataDesc = () => {
+    const sortedData = [...scanData].sort((a, b) => b.repository.localeCompare(a.repository));
+    setScanData(sortedData);
+  };
+
   // Users data used here, change with api call data
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
@@ -155,7 +163,6 @@ export default function UserPage() {
   };
 
   const handleClick = (event, name) => {
-    console.log(name);
     const selectedIndex = selected.indexOf(name);
     let newSelected = [];
     if (selectedIndex === -1) {
@@ -194,8 +201,6 @@ export default function UserPage() {
     filterName,
   });
 
-  console.log(order, orderBy);
-
   const notFound = !dataFiltered.length && !!filterName;
 
   return (
@@ -216,7 +221,7 @@ export default function UserPage() {
         </Dialog>
         <div>
           <Button variant="contained" sx={{ mr: 1 }}>
-            {totalReposPercent}%
+            {totalReposPercent.toFixed(0)}%
           </Button>
           <Button
             variant="contained"
@@ -248,8 +253,10 @@ export default function UserPage() {
               numSelected={selected.length}
               onRequestSort={handleSort}
               onSelectAllClick={handleSelectAllClick}
+              onAscSort={sortDataAsc}
+              onDescSort={sortDataDesc}
               headLabel={[
-                { id: 'repository', label: 'Repository Name', sortable: true },
+                { id: 'name', label: 'Repository Name', sortable: true },
                 { id: 'secrets', label: 'Total Secrets' },
                 { id: 'show', label: 'Show Secrets' },
                 { id: 'commits', label: 'Total Commits' },

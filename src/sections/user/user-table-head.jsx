@@ -19,9 +19,19 @@ export default function UserTableHead({
   numSelected,
   onRequestSort,
   onSelectAllClick,
+  onAscSort,
+  onDescSort,
 }) {
   const onSort = (property) => (event) => {
+    if (property === 'name') {
+      if (order === 'asc') {
+        onAscSort();
+      } else {
+        onDescSort();
+      }
+    }
     console.log(event, property);
+    console.log('order ->: ', order);
     onRequestSort(event, property);
   };
 
@@ -73,4 +83,6 @@ UserTableHead.propTypes = {
   numSelected: PropTypes.number,
   onRequestSort: PropTypes.func,
   onSelectAllClick: PropTypes.func,
+  onAscSort: PropTypes.func,
+  onDescSort: PropTypes.func,
 };

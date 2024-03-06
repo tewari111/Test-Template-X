@@ -178,7 +178,7 @@ export default function AppView() {
         </Dialog>
         <div>
           <Button variant="contained" sx={{ mr: 1 }}>
-            {totalReposPercent}%
+            {totalReposPercent.toFixed(0)}%
           </Button>
           <Button
             variant="contained"
