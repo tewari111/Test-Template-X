@@ -11,7 +11,21 @@ import Iconify from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function UserTableToolbar({ numSelected, filterName, onFilterName }) {
+export default function UserTableToolbar({ numSelected, filterName, onFilterName, selected }) {
+  const reScan = async () => {
+    fetch('http://65.1.132.241:8000/scanRepo', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(selected),
+    })
+      .then((response) => response.json())
+      .then((data) => console.log(data))
+      .catch((error) => console.error(error));
+  };
+
+
   return (
     <Toolbar
       sx={{
@@ -46,7 +60,7 @@ export default function UserTableToolbar({ numSelected, filterName, onFilterName
       )}
 
       {numSelected > 0 ? (
-        <Tooltip title="Re-Scan">
+        <Tooltip onClick={reScan} title="Re-Scan">
           <IconButton>
             <Iconify icon="eva:refresh-fill" />
           </IconButton>
@@ -66,4 +80,5 @@ UserTableToolbar.propTypes = {
   numSelected: PropTypes.number,
   filterName: PropTypes.string,
   onFilterName: PropTypes.func,
+  selected: PropTypes.array,
 };

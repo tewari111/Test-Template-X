@@ -45,25 +45,25 @@ export default function UserTableRow({
   //   setSecret(false)
   // }
   const navigate = useNavigate();
-  const [messages, setMessages] = useState([]);
 
-  const handleOpenMenu = (event) => {
+  const reScan = async () => {
+    fetch('http://65.1.132.241:8000/scanRepo', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(Array(name)),
+    })
+      .then((response) => response.json())
+      .then((data) => console.log(data))
+      .catch((error) => console.error(error));
+  };
+
+  const handleOpenMenu = async (event) => {
     setOpen(event.currentTarget);
   };
 
-  const handleCloseMenu = async () => {
-    const currentTime = new Date().toLocaleTimeString();
-    const currentDate = new Date().toLocaleDateString();
-    const newMessageEntry = `Org scan started!: ${currentDate} ${currentTime}`;
-    const updatedMessages = [...messages, newMessageEntry];
-    setMessages(updatedMessages);
-    localStorage.setItem('postRequestMessages', JSON.stringify(updatedMessages));
-    try {
-      await fetch('http://65.1.132.241:8000/scanOrg');
-    } catch (error) {
-      console.error(error);
-    }
-
+  const handleCloseMenu = () => {
     setOpen(null);
   };
 
@@ -125,7 +125,7 @@ export default function UserTableRow({
       >
         <MenuItem onClick={handleCloseMenu}>
           <Iconify icon="eva:refresh-fill" sx={{ mr: 2 }} />
-          re-scan
+          <Button onClick={reScan}>Re-Scan</Button>
         </MenuItem>
       </Popover>
     </>

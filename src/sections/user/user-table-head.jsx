@@ -24,8 +24,9 @@ export default function UserTableHead({
     console.log(event, property);
     onRequestSort(event, property);
   };
+  console.log('order: ', order);
+  console.log('order By', orderBy);
 
-  console.log(headLabel);
   return (
     <TableHead>
       <TableRow>

@@ -23,12 +23,19 @@ const ShowSecrets = () => {
 
   return (
     <Container>
-      <Grid container spacing={2}>
+      <Grid>
         {secretsData.map((repository, index) => (
           <Grid item xs={12} md={6} key={index}>
             {Number(id) === Number(index) && (
-              <Grid sx={{ width: '70vw' }}>
-                <Typography variant="h4" component="h1" padding="5px" ml={1} mt={1}>
+              <Grid>
+                <Typography
+                  variant="h4"
+                  component="h1"
+                  sx={{ display: repository.secrets.length === 0 ? 'none' : 'block' }}
+                  padding="5px"
+                  ml={1}
+                  mt={1}
+                >
                   {repository.repository} Secretes
                 </Typography>
                 <CardContent>

@@ -48,7 +48,7 @@ export default function UserPage() {
 
   const [scanData, setScanData] = useState([]);
   const [totalRepos, setTotalRepos] = useState([]);
-  const [messages, setMessages] = useState([]);
+  // const [messages, setMessages] = useState([]);
   useEffect(() => {
     fetchTotlaRepos();
     fetchScanData();
@@ -82,10 +82,12 @@ export default function UserPage() {
     const currentDate = new Date().toLocaleDateString();
     const newMessageEntry = `Org scan started!: ${currentDate} ${currentTime}`;
 
-    const updatedMessages = [...messages, newMessageEntry];
-    setMessages(updatedMessages);
-    localStorage.setItem('postRequestMessages', JSON.stringify(updatedMessages));
+    // Retrieve the existing messages array from localStorage
+    const storedMessages = localStorage.getItem('postRequestMessages');
+    const messages = storedMessages ? JSON.parse(storedMessages) : [];
 
+    const updatedMessages = [...messages, newMessageEntry];
+    localStorage.setItem('postRequestMessages', JSON.stringify(updatedMessages));
     try {
       await fetch('http://65.1.132.241:8000/scanOrg');
     } catch (error) {
@@ -95,9 +97,18 @@ export default function UserPage() {
 
   const totalReposPercent = (scanData.length / totalRepos.totalRepos) * 100 || 0;
 
+  // const handleInputChange = (e) => {
+  //   const { url, value } = e.target;
+
+  //   setFormData({
+  //     ...formData,
+  //     [url]: value,
+  //   });
+  // };
+
   // const handleSubmit = () => {
   //   // Handle form submission here, e.g., send data to backend
-  //   // console.log(formData);
+  //   console.log(formData);
   //   handleClose();
   // };
 
@@ -116,6 +127,12 @@ export default function UserPage() {
   //     ...formData,
   //     [url]: value,
   //   });
+  // };
+
+  // const handleSubmit = () => {
+  //   // Handle form submission here, e.g., send data to backend
+  //   console.log(formData);
+  //   handleClose();
   // };
 
   const handleSort = (event, id) => {
@@ -177,8 +194,7 @@ export default function UserPage() {
     filterName,
   });
 
-  // console.log(formData);
-  // console.log(order, orderBy);
+  console.log(order, orderBy);
 
   const notFound = !dataFiltered.length && !!filterName;
 
@@ -218,6 +234,7 @@ export default function UserPage() {
         numSelected={selected.length}
         filterName={filterName}
         onFilterName={handleFilterByName}
+        selected={selected}
       />
 
       <Scrollbar>

@@ -2,13 +2,12 @@ import { useState, useEffect } from 'react';
 // import { faker } from '@faker-js/faker';
 // import React, {  useState,useEffect, } from 'react';
 
-import { Line, XAxis, YAxis, Legend, Tooltip, LineChart, CartesianGrid } from 'recharts';
-
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
+import { LineChart } from '@mui/x-charts/LineChart';
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 
 import Iconify from 'src/components/iconify';
@@ -28,22 +27,31 @@ import AppWidgetSummary from '../app-widget-summary';
 // ----------------------------------------------------------------------
 
 export default function AppView() {
+  // const [messages, setMessages] = useState([]);
+  const [open, setOpen] = useState(false);
   const [scanData, setScanData] = useState([]);
   const [totalRepos, setTotalRepos] = useState([]);
+  const [getStorageData, setGetStorageData] = useState([]);
 
   useEffect(() => {
     fetchTotlaRepos();
     fetchScanData();
+
+    const storedData = JSON.parse(localStorage.getItem('postRequestMessages'));
+    if (storedData) {
+      setGetStorageData(storedData);
+    }
   }, []);
 
   // console.log(responseData);
-  console.log(scanData);
+  // console.log(scanData);
+  // console.log(getStorageData);
 
   const fetchScanData = async () => {
     try {
       const response = await fetch('http://65.1.132.241:8000/getOrgScan');
-      const data = await response.json();
-      setScanData(data.repositories);
+      const jsonData = await response.json();
+      setScanData(jsonData.repositories);
     } catch (error) {
       console.error(error);
     }
@@ -60,8 +68,8 @@ export default function AppView() {
   const fetchTotlaRepos = async () => {
     try {
       const response = await fetch('http://65.1.132.241:8000/settings');
-      const data = await response.json();
-      setTotalRepos(data);
+      const jsonData = await response.json();
+      setTotalRepos(jsonData);
     } catch (error) {
       console.error(error);
     }
@@ -80,24 +88,50 @@ export default function AppView() {
 
   const totalReposPercent = (totalRepos.totalRepos / totalRepos.totalRepos) * 100 || 0;
 
-  // const pieChartData = data.map((item, index) => ({
-  //   label: item.repository,
-  //   value: ((item.secrets + 1) / totalSecrets) * 100,
-  // }));
+  const pieChartData = scanData.map((item, index) => ({
+    label: item.repository,
+    value: ((item.secrets.length + 1) / totalSecrets) * 100,
+  }));
 
-  // const series = scanData.map((repos)=>({
-  //   lable: repos.secrets.length + 1,
-  //   value: totalSecrets
-  // }))
-  const [open, setOpen] = useState(false);
-  // const [formData, setFormData] = useState({
-  //   url: '',
-  //   date: '',
-  // });
+  // console.log('pie chart', pieChartData);
 
-  const handleOpen = () => {
+  // const data = [4000, 3000, 2000, null, 1890, 2390, 3490];
+  // const xData = ['Page A', 'Page B', 'Page C', 'Page D', 'Page E', 'Page F', 'Page G'];
+
+  const dates = getStorageData.map((item, i) => {
+    const dateString = item.split('Org scan started!: ')[1]; // Extract the portion after the colon and space
+    const date = dateString;
+    return date;
+  });
+
+  const yData = scanData
+    .slice(0, dates.length)
+    .map((item) => (item.secrets.length + 1) / totalSecrets);
+
+  // console.log('yData', yData);
+  // console.log(dates);
+
+  const data = yData;
+  const xData = dates;
+
+  const handleOpen = async () => {
     fetchScanOrg();
     setOpen(true);
+    const currentTime = new Date().toLocaleTimeString();
+    const currentDate = new Date().toLocaleDateString();
+    const newMessageEntry = `Org scan started!: ${currentDate} ${currentTime}`;
+
+    // Retrieve the existing messages array from localStorage
+    const storedMessages = localStorage.getItem('postRequestMessages');
+    const messages = storedMessages ? JSON.parse(storedMessages) : [];
+
+    const updatedMessages = [...messages, newMessageEntry];
+    localStorage.setItem('postRequestMessages', JSON.stringify(updatedMessages));
+    try {
+      await fetch('http://65.1.132.241:8000/scanOrg');
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleClose = () => {
@@ -197,27 +231,20 @@ export default function AppView() {
           />
         </Grid> */}
         {/* @TODO change the logo */}
-        <Grid xs={12} md={6} lg={8}>
-          <LineChart width={500} height={400}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="secrets" label="Secretes" />
-            <YAxis dataKey="repos" label="" />
-            <Tooltip />
-            <Legend />
-            <Line type="monotone" dataKey="repos" stroke="#8884d8" />
-          </LineChart>
+        <Grid xs={12} md={6} lg={8} mt={1.5} bgcolor="white" borderRadius="15px" height="78vh">
+          <LineChart
+            xAxis={[{ data: xData, scaleType: 'point' }]}
+            series={[{ data, connectNulls: true }]}
+            height={350}
+            margin={{ top: 30, bottom: 20 }}
+          />
         </Grid>
 
         <Grid xs={12} md={6} lg={4}>
           <AppCurrentVisits
             title="Disclosed Secrets"
             chart={{
-              series: [
-                { label: 'Repo1', value: 4344 },
-                { label: 'Repo2', value: 5343 },
-                { label: 'Repo3', value: 1443 },
-                { label: 'Repo4', value: 4443 },
-              ],
+              series: pieChartData,
             }}
           />
         </Grid>
