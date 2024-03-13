@@ -19,9 +19,19 @@ export default function UserTableHead({
   numSelected,
   onRequestSort,
   onSelectAllClick,
+  onAscSort,
+  onDescSort,
 }) {
   const onSort = (property) => (event) => {
-    console.log(event, property)
+    if (property === 'name') {
+      if (order === 'asc') {
+        onAscSort();
+      } else {
+        onDescSort();
+      }
+    }
+    console.log(event, property);
+    console.log('order ->: ', order);
     onRequestSort(event, property);
   };
 
@@ -42,8 +52,8 @@ export default function UserTableHead({
             align={headCell.align || 'left'}
             sortDirection={orderBy === headCell.id ? order : false}
             sx={{ width: headCell.width, minWidth: headCell.minWidth }}
-          > 
-          {/* {console.log(orderBy === headCell.id, orderBy, headCell.id)} */}
+          >
+            {/* {console.log(orderBy === headCell.id, orderBy, headCell.id)} */}
             <TableSortLabel
               hideSortIcon
               active={orderBy === headCell.id}
@@ -51,7 +61,7 @@ export default function UserTableHead({
               onClick={onSort(headCell.id)}
             >
               {headCell.label}
-              {/* {console.log(order)} */}
+              {console.log('order: ', order)}
               {orderBy === headCell.id ? (
                 <Box sx={{ ...visuallyHidden }}>
                   {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
@@ -73,4 +83,6 @@ UserTableHead.propTypes = {
   numSelected: PropTypes.number,
   onRequestSort: PropTypes.func,
   onSelectAllClick: PropTypes.func,
+  onAscSort: PropTypes.func,
+  onDescSort: PropTypes.func,
 };

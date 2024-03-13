@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
 
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
@@ -12,8 +13,8 @@ import MenuItem from '@mui/material/MenuItem';
 import TableCell from '@mui/material/TableCell';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
+import { Dialog, DialogTitle, DialogActions } from '@mui/material';
 
-// import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 
 // import SecretDialog from './user-secret-dialog';
@@ -26,26 +27,61 @@ export default function UserTableRow({
   avatarUrl,
   secrets,
   show,
-  commits,
   // status,
+  id,
+  commits,
   handleClick,
 }) {
   const [open, setOpen] = useState(null);
+  const [openDialog, setOpenDialog] = useState(false);
   // const [secret, setData]=useState(null);
+  const navigate = useNavigate();
+  console.log('Name: ', name);
+  const reScan = async () => {
+    const currentTime = new Date().toLocaleTimeString();
+    const currentDate = new Date().toLocaleDateString();
+    const newMessageEntry = `Org scan started!: ${currentDate} ${currentTime}`;
 
-  // const openDialog= () => {
-  //   setSecret(true);
-  // }
+    // Retrieve the existing messages array from localStorage
+    const storedMessages = localStorage.getItem('postRequestMessages');
+    const messages = storedMessages ? JSON.parse(storedMessages) : [];
 
-  // const closeDialog=() => {
-  //   setSecret(false)
-  // }
-  const handleOpenMenu = (event) => {
+    const updatedMessages = [...messages, newMessageEntry];
+    localStorage.setItem('postRequestMessages', JSON.stringify(updatedMessages));
+    handleOpenDialog();
+    fetch('http://65.1.132.241:8000/scanRepo', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(Array(name)),
+    })
+      .then((response) => {
+        if (response.ok) {
+          setOpenDialog(false);
+          return response.json();
+        }
+
+        return response;
+      })
+      .then((data) => console.log(data))
+      .catch((error) => console.error(error));
+  };
+
+  const handleOpenMenu = async (event) => {
     setOpen(event.currentTarget);
   };
 
   const handleCloseMenu = () => {
     setOpen(null);
+  };
+
+  const handleOpenDialog = () => {
+    setOpenDialog(true);
+  };
+
+  const handelCloseDialog = () => {
+    setOpenDialog(false);
   };
 
   return (
@@ -69,23 +105,19 @@ export default function UserTableRow({
         <TableCell>{secrets}</TableCell>
 
         <TableCell>
-          <Link underline='hover' sx={{my :3}}>
-            <Button 
-            onClick={console.log(selected)}
-             >
-            {show}
+          <Link underline="hover" sx={{ my: 3 }}>
+            <Button
+              onClick={() => {
+                navigate(`/secrets/${id}`);
+              }}
+            >
+              {show}
             </Button>
           </Link>
-
         </TableCell>
 
-        
         {/* <TableCell>{commits}</TableCell> */}
-        <TableCell align="center">
-         
-          {commits ? 'Yes' : 'No'}
-     
-        </TableCell>
+        <TableCell align="center">{commits}</TableCell>
 
         {/* <TableCell>
           <Label color={(status === 'banned' && 'error') || 'success'}>{status}</Label>
@@ -109,15 +141,20 @@ export default function UserTableRow({
         }}
       >
         <MenuItem onClick={handleCloseMenu}>
-          <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
-          Edit
-        </MenuItem>
-
-        <MenuItem onClick={handleCloseMenu} sx={{ color: 'error.main' }}>
-          <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
-          Delete
+          <Button startIcon={<Iconify icon="eva:refresh-fill" sx={{ mr: 2 }} />} onClick={reScan}>
+            Re-Scan
+          </Button>
         </MenuItem>
       </Popover>
+
+      <Dialog open={!!openDialog} onClose={handelCloseDialog}>
+        <DialogTitle>Org scan started for {name}</DialogTitle>
+        <DialogActions>
+          <Button onClick={handelCloseDialog} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }
@@ -131,4 +168,5 @@ UserTableRow.propTypes = {
   show: PropTypes.any,
   selected: PropTypes.any,
   // status: PropTypes.string,
+  id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };

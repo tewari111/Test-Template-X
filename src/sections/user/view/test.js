@@ -12,7 +12,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 
-// import { users } from 'src/_mock/user';
+import { users } from 'src/_mock/user';
 
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
@@ -29,7 +29,8 @@ import { emptyRows, applyFilter, getComparator } from '../utils';
 
 export default function UserPage() {
   const [page, setPage] = useState(0);
-
+  // const [data, setData] = useState(null);
+  // const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
   const [order, setOrder] = useState('asc');
 
   const [selected, setSelected] = useState([]);
@@ -41,77 +42,45 @@ export default function UserPage() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const [open, setOpen] = useState(false);
+
   // const [formData, setFormData] = useState({
   //   url: '',
   //   date: '',
   // });
 
+  const [responseData, setResponseData] = useState([]);
   const [scanData, setScanData] = useState([]);
-  const [totalRepos, setTotalRepos] = useState([]);
-  // const [messages, setMessages] = useState([]);
-  useEffect(() => {
-    fetchTotlaRepos();
-    fetchScanData();
-  }, []);
 
-  const fetchScanData = async () => {
+  const fetchData = async () => {
     try {
       const response = await fetch('http://65.1.132.241:8000/getOrgScan');
       const data = await response.json();
-      setScanData(data.repositories);
+      setResponseData(data.repositories);
     } catch (error) {
       console.error(error);
     }
   };
 
-  const fetchTotlaRepos = async () => {
-    try {
-      const response = await fetch('http://65.1.132.241:8000/settings');
-      const data = await response.json();
-      setTotalRepos(data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  useEffect(() => {
+    fetchData();
+  }, []);
 
+  console.log(responseData);
+  console.log("ScanOrgData")
   console.log(scanData);
-  const fetchScanOrg = async () => {
-    const currentTime = new Date().toLocaleTimeString();
-    const currentDate = new Date().toLocaleDateString();
-    const newMessageEntry = `Org scan started!: ${currentDate} ${currentTime}`;
 
-    // Retrieve the existing messages array from localStorage
-    const storedMessages = localStorage.getItem('postRequestMessages');
-    const messages = storedMessages ? JSON.parse(storedMessages) : [];
-
-    const updatedMessages = [...messages, newMessageEntry];
-    localStorage.setItem('postRequestMessages', JSON.stringify(updatedMessages));
+  const fetchScanData = async () => {
     try {
-      await fetch('http://65.1.132.241:8000/scanOrg');
+      const response = await fetch('http://65.1.132.241:8000/scanOrg');
+      const data = await response.json();
+      setScanData(data);
     } catch (error) {
       console.error(error);
     }
   };
-
-  const totalReposPercent = (scanData.length / totalRepos.totalRepos) * 100 || 0;
-
-  // const handleInputChange = (e) => {
-  //   const { url, value } = e.target;
-
-  //   setFormData({
-  //     ...formData,
-  //     [url]: value,
-  //   });
-  // };
-
-  // const handleSubmit = () => {
-  //   // Handle form submission here, e.g., send data to backend
-  //   console.log(formData);
-  //   handleClose();
-  // };
 
   const handleOpen = () => {
-    fetchScanOrg();
+    fetchScanData();
     setOpen(true);
   };
   const handleClose = () => {
@@ -142,43 +111,33 @@ export default function UserPage() {
     }
   };
 
-  const sortDataAsc = () => {
-    const sortedData = [...scanData].sort((a, b) => a.repository.localeCompare(b.repository));
-    setScanData(sortedData);
-  };
-
-  const sortDataDesc = () => {
-    const sortedData = [...scanData].sort((a, b) => b.repository.localeCompare(a.repository));
-    setScanData(sortedData);
-  };
-
   // Users data used here, change with api call data
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = scanData.map((n) => n.repository);
+      const newSelecteds = users.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
 
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected = [];
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      );
-    }
-    setSelected(newSelected);
-  };
+  // const handleClick = (event, name) => {
+  //   const selectedIndex = selected.indexOf(name);
+  //   let newSelected = [];
+  //   if (selectedIndex === -1) {
+  //     newSelected = newSelected.concat(selected, name);
+  //   } else if (selectedIndex === 0) {
+  //     newSelected = newSelected.concat(selected.slice(1));
+  //   } else if (selectedIndex === selected.length - 1) {
+  //     newSelected = newSelected.concat(selected.slice(0, -1));
+  //   } else if (selectedIndex > 0) {
+  //     newSelected = newSelected.concat(
+  //       selected.slice(0, selectedIndex),
+  //       selected.slice(selectedIndex + 1)
+  //     );
+  //   }
+  //   setSelected(newSelected);
+  // };
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -196,10 +155,12 @@ export default function UserPage() {
 
   // users data change with api data
   const dataFiltered = applyFilter({
-    inputData: scanData,
+    inputData: users,
     comparator: getComparator(order, orderBy),
     filterName,
   });
+
+  console.log(order, orderBy);
 
   const notFound = !dataFiltered.length && !!filterName;
 
@@ -219,19 +180,15 @@ export default function UserPage() {
             </Button>
           </DialogActions>
         </Dialog>
-        <div>
-          <Button variant="contained" sx={{ mr: 1 }}>
-            {totalReposPercent.toFixed(0)}%
-          </Button>
-          <Button
-            variant="contained"
-            color="inherit"
-            startIcon={<Iconify icon="eva:plus-fill" />}
-            onClick={handleOpen}
-          >
-            Start Org Scan
-          </Button>
-        </div>
+
+        <Button
+          variant="contained"
+          color="inherit"
+          startIcon={<Iconify icon="eva:plus-fill" />}
+          onClick={handleOpen}
+        >
+          Start Org Scan
+        </Button>
       </Stack>
 
       {/* <Card> */}
@@ -239,7 +196,6 @@ export default function UserPage() {
         numSelected={selected.length}
         filterName={filterName}
         onFilterName={handleFilterByName}
-        selected={selected}
       />
 
       <Scrollbar>
@@ -249,43 +205,37 @@ export default function UserPage() {
             <UserTableHead
               order={order}
               orderBy={orderBy}
-              rowCount={scanData.length}
+              rowCount={users.length}
               numSelected={selected.length}
               onRequestSort={handleSort}
               onSelectAllClick={handleSelectAllClick}
-              onAscSort={sortDataAsc}
-              onDescSort={sortDataDesc}
               headLabel={[
-                { id: 'name', label: 'Repository Name', sortable: true },
+                { id: 'name', label: 'Repository Name' },
                 { id: 'secrets', label: 'Total Secrets' },
                 { id: 'show', label: 'Show Secrets' },
                 { id: 'commits', label: 'Total Commits' },
-                { id: 'isVerified', label: 'Verified', align: 'center' },
+                // { id: 'isVerified', label: 'Verified', align: 'center' },
                 // { id: '' },
               ]}
             />
             <TableBody>
-              {dataFiltered
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, i) => (
-                  <UserTableRow
-                    key={i}
-                    id={i}
-                    name={row.repository}
-                    show="Show secrets"
-                    status={i}
-                    secrets={row.secrets.length}
-                    // avatarUrl={row.avatarUrl}
-                    commits={row.totalNoCommits}
-                    selected={selected.indexOf(row.repository) !== -1}
-                    handleClick={(event) => handleClick(event, row.repository)}
-                  />
-                ))}
+              {responseData.map((user, i) => (
+                <UserTableRow
+                  key={i}
+                  id={i}
+                  name={user.repository}
+                  show="Show Secrets"
+                  status={i}
+                  secrets={user.secrets.length}
+                  // avatarUrl={user.avatarUrl}
+                  commits={user.totalNoCommits}
+                  // selected={selected.indexOf(user.name) !== -1}
+                  // handleClick={(event) => handleClick(event, user.name)}
+                />
+              ))}
+
               {/* user data */}
-              <TableEmptyRows
-                height={77}
-                emptyRows={emptyRows(page, rowsPerPage, scanData.length)}
-              />
+              <TableEmptyRows height={77} emptyRows={emptyRows(page, rowsPerPage, users.length)} />
 
               {notFound && <TableNoData query={filterName} />}
             </TableBody>
@@ -296,7 +246,7 @@ export default function UserPage() {
       <TablePagination
         page={page}
         component="div"
-        count={scanData.length}
+        count={users.length}
         rowsPerPage={rowsPerPage}
         onPageChange={handleChangePage}
         rowsPerPageOptions={[5, 10, 25]}
