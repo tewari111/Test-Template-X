@@ -7,6 +7,7 @@ import {
   Grid,
   Menu,
   Button,
+  Dialog,
   MenuItem,
   Checkbox,
   FormGroup,
@@ -14,6 +15,8 @@ import {
   Typography,
   IconButton,
   CardContent,
+  DialogTitle,
+  DialogActions,
   FormControlLabel,
 } from '@mui/material';
 
@@ -23,6 +26,12 @@ import Iconify from 'src/components/iconify';
 const ShowSecrets = () => {
   const [secretsData, setSecretsData] = useState([]);
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [OrgScope, setOrgScope] = useState();
+  const [WhitelistSecretsBody, setWhitelistSecretsBody] = useState();
+  const [checkboxData, setCheckboxData] = useState([]);
+  const [repoName, setRepoName] = useState();
+  const [visibility, setVisibility] = useState('hidden');
   const { id } = useParams();
 
   useEffect(() => {
@@ -39,6 +48,35 @@ const ShowSecrets = () => {
     fetchData();
   }, []);
 
+  const setWhitelistSecrets = async () => {
+    fetch('http://65.1.132.241:8000/setWhitelistSecrets', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(WhitelistSecretsBody),
+    })
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        }
+        return response;
+      })
+      .then((data) => console.log(data))
+      .catch((error) => console.error(error));
+  };
+
+  const handleCheckboxChange = (event) => {
+    const { value, checked } = event.target;
+    if (checked) {
+      setVisibility('visible');
+      setCheckboxData((prevData) => [...prevData, value]);
+    } else {
+      setCheckboxData((prevData) => prevData.filter((item) => item !== value));
+      setVisibility('hidden');
+    }
+  };
+
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -47,8 +85,46 @@ const ShowSecrets = () => {
     setAnchorEl(null);
   };
 
+  const handleOpenDialog = () => {
+    setOpenDialog(true);
+  };
+  const handelCloseDialog = () => {
+    setOpenDialog(false);
+  };
+
+  console.log(checkboxData);
+  console.log(repoName);
+
   return (
     <Container>
+      <Grid
+        xs={12}
+        lg={12}
+        bgcolor="lightblue"
+        alignItems="center"
+        display="flex"
+        justifyContent="space-between"
+        padding="20px"
+        visibility={visibility}
+      >
+        <Typography>{checkboxData.length} Selected</Typography>
+        <Button
+          startIcon={
+            <Iconify
+              icon="eva:refresh-fill"
+              sx={{ mr: 2 }}
+              onClick={(event) => {
+                handleClick(event);
+                setWhitelistSecretsBody({
+                  Secret: checkboxData,
+                  OrgScope,
+                  Repository: repoName,
+                });
+              }}
+            />
+          }
+        />
+      </Grid>
       <Menu
         id="basic-menu"
         anchorEl={anchorEl}
@@ -59,9 +135,37 @@ const ShowSecrets = () => {
         }}
       >
         <MenuItem onClick={handleClose}>
-          <Button startIcon={<Iconify icon="eva:refresh-fill" sx={{ mr: 2 }} />}>Re-Scan</Button>
+          <Button
+            onClick={handleOpenDialog}
+            startIcon={<Iconify icon="eva:refresh-fill" sx={{ mr: 2 }} />}
+          >
+            Whitelist
+          </Button>
         </MenuItem>
       </Menu>
+      <Dialog open={openDialog}>
+        <DialogTitle>Do you want to this white list for entire org?</DialogTitle>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setOrgScope(true);
+              setWhitelistSecrets();
+              handelCloseDialog();
+            }}
+          >
+            Yes
+          </Button>
+          <Button
+            onClick={() => {
+              setOrgScope(false);
+              setWhitelistSecrets();
+              handelCloseDialog();
+            }}
+          >
+            No
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Grid>
         {secretsData.map((repository, index) => (
           <Grid item xs={12} md={6} key={index}>
@@ -82,7 +186,17 @@ const ShowSecrets = () => {
                     {repository.secrets.map((secret, secretIndex) => (
                       <Grid item xs={12} key={secretIndex} alignItems="start" display="flex">
                         <FormGroup>
-                          <FormControlLabel control={<Checkbox />} />
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                value={secret.Match}
+                                onChange={(event) => {
+                                  setRepoName(repository.repository);
+                                  handleCheckboxChange(event);
+                                }}
+                              />
+                            }
+                          />
                         </FormGroup>
                         <Card variant="outlined">
                           <CardContent>
@@ -95,7 +209,14 @@ const ShowSecrets = () => {
                                 aria-controls={open ? 'basic-menu' : undefined}
                                 aria-haspopup="true"
                                 aria-expanded={open ? 'true' : undefined}
-                                onClick={handleClick}
+                                onClick={(event) => {
+                                  handleClick(event);
+                                  setWhitelistSecretsBody({
+                                    Secret: secret.Match,
+                                    OrgScope,
+                                    Repository: repository.repository,
+                                  });
+                                }}
                                 sx={{ height: '20px' }}
                               >
                                 <Iconify icon="eva:more-vertical-fill" />

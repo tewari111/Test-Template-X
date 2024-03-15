@@ -17,16 +17,17 @@ const navConfig = [
     path: '/repos',
     icon: icon('ic_user'),
   },
+
+  {
+    title: 'Whitelist Secrets',
+    path: '/whitelist',
+    icon: icon('ic_blog'),
+  },
   {
     title: 'Settings',
     path: '/settings',
     icon: icon('ic_cart'),
   },
-  // {
-  //   title: 'blog',
-  //   path: '/blog',
-  //   icon: icon('ic_blog'),
-  // },
   // {
   //   title: 'login',
   //   path: '/login',

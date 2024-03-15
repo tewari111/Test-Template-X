@@ -10,6 +10,7 @@ import SettingPage from './components/SettingPage';
 
 export const IndexPage = lazy(() => import('src/pages/app'));
 export const BlogPage = lazy(() => import('src/pages/blog'));
+export const WhitelistSecrets = lazy(() => import('src/pages/WhitelistSecrets'));
 export const UserPage = lazy(() => import('src/pages/user'));
 export const LoginPage = lazy(() => import('src/pages/login'));
 export const ProductsPage = lazy(() => import('src/pages/products'));
@@ -32,6 +33,7 @@ export default function Router() {
         { path: '/secrets/:id', element: <ShowSecrets /> },
         { path: 'settings', element: <SettingPage /> },
         { path: 'set', element: <SettingPage /> },
+        { path: 'whitelist', element: <WhitelistSecrets /> },
         // { path: '/login', element: <Login /> },
         // { path: 'blog', element: <BlogPage /> },
       ],
