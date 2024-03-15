@@ -137,7 +137,7 @@ const ShowSecrets = () => {
         <MenuItem onClick={handleClose}>
           <Button
             onClick={handleOpenDialog}
-            startIcon={<Iconify icon="eva:refresh-fill" sx={{ mr: 2 }} />}
+            startIcon={<Iconify icon="eva:list-fill" sx={{ mr: 2 }} />}
           >
             Whitelist
           </Button>
