@@ -27,11 +27,12 @@ const ShowSecrets = () => {
   const [secretsData, setSecretsData] = useState([]);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [openDialog, setOpenDialog] = useState(false);
-  const [OrgScope, setOrgScope] = useState();
-  const [WhitelistSecretsBody, setWhitelistSecretsBody] = useState();
+  const [OrgScopeValue, setOrgScopeValue] = useState();
+
   const [checkboxData, setCheckboxData] = useState([]);
   const [repoName, setRepoName] = useState();
   const [visibility, setVisibility] = useState('hidden');
+  const [secretValue, setSecret] = useState();
   const { id } = useParams();
 
   useEffect(() => {
@@ -48,22 +49,26 @@ const ShowSecrets = () => {
     fetchData();
   }, []);
 
-  const setWhitelistSecrets = async () => {
-    fetch('http://65.1.132.241:8000/setWhitelistSecrets', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(WhitelistSecretsBody),
-    })
-      .then((response) => {
-        if (response.ok) {
-          return response.json();
-        }
-        return response;
-      })
-      .then((data) => console.log(data))
-      .catch((error) => console.error(error));
+  const setWhitelistSecrets = async (result) => {
+    try {
+      const response = await fetch('http://65.1.132.241:8000/setWhitelistSecrets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(result),
+      });
+
+      if (response.ok) {
+        console.log('Whitelist secrets set successfully');
+        const data = await response.json();
+        console.log(data);
+      } else {
+        console.error('Error setting whitelist secrets:', response.status, response.statusText);
+      }
+    } catch (error) {
+      console.error('Error setting whitelist secrets:', error);
+    }
   };
 
   const handleCheckboxChange = (event) => {
@@ -92,12 +97,31 @@ const ShowSecrets = () => {
     setOpenDialog(false);
   };
 
-  console.log(checkboxData);
-  console.log(repoName);
+  function setValue() {
+    if (checkboxData.length !== 0) {
+      const result = checkboxData.map((item) => ({
+        Secret: item,
+        OrgScope: OrgScopeValue,
+        Repository: repoName,
+      }));
+      setWhitelistSecrets(result);
+    } else {
+      const result = [
+        {
+          Secret: secretValue,
+          OrgScope: !OrgScopeValue,
+          Repository: repoName,
+        },
+      ];
+      console.log(result);
+      setWhitelistSecrets(result);
+    }
+  }
 
   return (
     <Container>
       <Grid
+        item
         xs={12}
         lg={12}
         bgcolor="lightblue"
@@ -110,18 +134,7 @@ const ShowSecrets = () => {
         <Typography>{checkboxData.length} Selected</Typography>
         <Button
           startIcon={
-            <Iconify
-              icon="eva:refresh-fill"
-              sx={{ mr: 2 }}
-              onClick={(event) => {
-                handleClick(event);
-                setWhitelistSecretsBody({
-                  Secret: checkboxData,
-                  OrgScope,
-                  Repository: repoName,
-                });
-              }}
-            />
+            <Iconify icon="ri:checkbox-circle-fill" sx={{ mr: 2 }} onClick={handleOpenDialog} />
           }
         />
       </Grid>
@@ -135,10 +148,7 @@ const ShowSecrets = () => {
         }}
       >
         <MenuItem onClick={handleClose}>
-          <Button
-            onClick={handleOpenDialog}
-            startIcon={<Iconify icon="eva:list-fill" sx={{ mr: 2 }} />}
-          >
+          <Button onClick={handleOpenDialog} startIcon={<Iconify icon="ri:checkbox-circle-fill" />}>
             Whitelist
           </Button>
         </MenuItem>
@@ -148,8 +158,8 @@ const ShowSecrets = () => {
         <DialogActions>
           <Button
             onClick={() => {
-              setOrgScope(true);
-              setWhitelistSecrets();
+              setOrgScopeValue(true);
+              setValue();
               handelCloseDialog();
             }}
           >
@@ -157,8 +167,8 @@ const ShowSecrets = () => {
           </Button>
           <Button
             onClick={() => {
-              setOrgScope(false);
-              setWhitelistSecrets();
+              setOrgScopeValue(false);
+              setValue();
               handelCloseDialog();
             }}
           >
@@ -211,11 +221,8 @@ const ShowSecrets = () => {
                                 aria-expanded={open ? 'true' : undefined}
                                 onClick={(event) => {
                                   handleClick(event);
-                                  setWhitelistSecretsBody({
-                                    Secret: secret.Match,
-                                    OrgScope,
-                                    Repository: repository.repository,
-                                  });
+                                  setRepoName(repository.repository);
+                                  setSecret(secret.Match);
                                 }}
                                 sx={{ height: '20px' }}
                               >

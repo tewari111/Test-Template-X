@@ -76,6 +76,8 @@ export default function WhitelistSecrets() {
     mappedData = fetchedData.orgscope;
   } else if (alignment === 'reposcope' && fetchedData.reposcope) {
     mappedData = fetchedData.reposcope;
+  } else {
+    mappedData = [];
   }
 
   return (
