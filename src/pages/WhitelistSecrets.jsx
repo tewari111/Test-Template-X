@@ -81,7 +81,7 @@ export default function WhitelistSecrets() {
   }
 
   return (
-    <Grid container sx={{ margin: '0px auto', ml: { xs: 15 }, width: { lg: '50svw' } }}>
+    <Grid container sx={{ margin: '0px auto', ml: { xs: 15 }, width: { lg: '85%' } }}>
       <Typography variant="h4">Whitelist Secrets</Typography>
       <Grid item lg={12} xs={12} textAlign="start" mb={4} mt={5}>
         <ToggleButtonGroup
@@ -112,7 +112,7 @@ export default function WhitelistSecrets() {
           </Button>
         </MenuItem>
       </Popover>
-      <Grid item xs={8} lg={8}>
+      <Grid item xs={12} lg={12}>
         <TableContainer component={Paper}>
           <Table aria-label="simple table">
             <TableHead>

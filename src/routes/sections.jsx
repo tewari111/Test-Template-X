@@ -6,6 +6,7 @@ import DashboardLayout from 'src/layouts/dashboard';
 import Login from 'src/sections/login/Login';
 import ShowSecrets from 'src/sections/user/view/ShowSecrets';
 
+import Test from 'src/pages/Test';
 import SettingPage from './components/SettingPage';
 
 export const IndexPage = lazy(() => import('src/pages/app'));
@@ -34,6 +35,7 @@ export default function Router() {
         { path: 'settings', element: <SettingPage /> },
         { path: 'set', element: <SettingPage /> },
         { path: 'whitelist', element: <WhitelistSecrets /> },
+        { path: 'test', element: <Test /> },
         // { path: '/login', element: <Login /> },
         // { path: 'blog', element: <BlogPage /> },
       ],
