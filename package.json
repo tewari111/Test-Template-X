@@ -43,7 +43,8 @@
     "react-hook-form": "^7.47.0",
     "react-router-dom": "^6.16.0",
     "recharts": "^2.12.2",
-    "simplebar-react": "^3.2.4"
+    "simplebar-react": "^3.2.4",
+    "yaml": "^2.4.1"
   },
   "devDependencies": {
     "@vitejs/plugin-react-swc": "^3.4.0",
