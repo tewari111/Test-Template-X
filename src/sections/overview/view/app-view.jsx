@@ -50,8 +50,10 @@ export default function AppView() {
   const fetchScanData = async () => {
     try {
       const response = await fetch('http://65.1.132.241:8000/getOrgScan');
-      const jsonData = await response.json();
-      setScanData(jsonData.repositories);
+      if (response.ok) {
+        const jsonData = await response.json();
+        setScanData(jsonData.repositories);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -68,8 +70,10 @@ export default function AppView() {
   const fetchTotlaRepos = async () => {
     try {
       const response = await fetch('http://65.1.132.241:8000/settings');
-      const jsonData = await response.json();
-      setTotalRepos(jsonData);
+      if (response.ok) {
+        const jsonData = await response.json();
+        setTotalRepos(jsonData);
+      }
     } catch (error) {
       console.error(error);
     }

@@ -29,8 +29,10 @@ const SettingPage = () => {
   const fetchData = async () => {
     try {
       const response = await fetch('http://65.1.132.241:8000/settings');
-      const data = await response.json();
-      setFormData(data);
+      if (response.ok) {
+        const data = await response.json();
+        setFormData(data);
+      }
     } catch (error) {
       console.error(error);
     }

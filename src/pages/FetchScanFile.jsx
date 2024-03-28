@@ -1,8 +1,8 @@
 import yaml from 'yaml';
+import { useLocation } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 
 import { Card, Grid, Typography, CardContent } from '@mui/material';
-import { useLocation } from 'react-router-dom';
 
 function FetchScanFile() {
   const [fechedData, setFetchedData] = useState([]);
@@ -12,26 +12,27 @@ function FetchScanFile() {
 
   const trimed = dateOfScan.trim();
   const splited = trimed.split(' ');
-  const updatedDate = splited[0] + '%20' + splited[1];
+  const updatedDate = `${splited[0]}%20${splited[1]}`;
 
   console.log('URL: ', updatedDate);
 
   useEffect(() => {
+    const fetchScanFile = async () => {
+      try {
+        const response = await fetch(
+          `http://65.1.132.241:8000/fetchScanFile?date_of_scan=${updatedDate}`
+        );
+        const responseData = await response.text();
+        const parsedData = yaml.parse(responseData);
+        setFetchedData(parsedData);
+      } catch (error) {
+        console.error(error);
+        // Handle the error appropriately (e.g., show an error message to the user)
+      }
+    };
+
     fetchScanFile();
-  }, []);
-  const fetchScanFile = async () => {
-    try {
-      const response = await fetch(
-        `http://65.1.132.241:8000/fetchScanFile?date_of_scan=${updatedDate}`
-      );
-      const responseData = await response.text();
-      const parsedData = yaml.parse(responseData);
-      setFetchedData(parsedData);
-    } catch (error) {
-      console.error(error);
-      // Handle the error appropriately (e.g., show an error message to the user)
-    }
-  };
+  }, [updatedDate]);
 
   return (
     <Grid container>
@@ -82,11 +83,17 @@ function FetchScanFile() {
                           ) : (
                             <Grid>
                               {nestedKey}:{' '}
+
                               {nestedKey === 'Raw'
+
                                 ? nestedValue.slice(0, 150)
+
                                 : typeof nestedValue === 'boolean'
+
                                 ? nestedValue.toString()
+
                                 : nestedValue}
+
                             </Grid>
                           )}
                         </Grid>
@@ -95,14 +102,18 @@ function FetchScanFile() {
                   ) : (
                     <Grid>
                       {key}:{' '}
+
                       {key === 'Raw'
+
                         ? value.slice(0, 150)
+
                         : typeof value === 'boolean'
+
                         ? value.toString()
 
+                        :value
 
-                        : value}
-
+                      }
                     </Grid>
                   )}
                 </Grid>

@@ -57,8 +57,10 @@ export default function UserPage() {
   const fetchScanData = async () => {
     try {
       const response = await fetch('http://65.1.132.241:8000/getOrgScan');
-      const data = await response.json();
-      setScanData(data.repositories);
+      if (response.ok) {
+        const data = await response.json();
+        setScanData(data.repositories);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -67,8 +69,10 @@ export default function UserPage() {
   const fetchTotlaRepos = async () => {
     try {
       const response = await fetch('http://65.1.132.241:8000/settings');
-      const data = await response.json();
-      setTotalRepos(data);
+      if (response.ok) {
+        const data = await response.json();
+        setTotalRepos(data);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -203,6 +207,13 @@ export default function UserPage() {
 
   const notFound = !dataFiltered.length && !!filterName;
 
+  // if (scanData.length === 0) {
+  //   scanData([]);
+  // }
+
+  // if (totalRepos.length === 0) {
+  //   totalRepos([]);
+  // }
   return (
     <Container>
       <Stack direction="row" justifyContent="space-between" mb={6}>
