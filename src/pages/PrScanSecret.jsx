@@ -5,10 +5,14 @@ import {
   Grid,
   Button,
   Dialog,
+  Select,
+  MenuItem,
   TextField,
+  InputLabel,
   Typography,
   CardContent,
   DialogTitle,
+  FormControl,
   DialogActions,
   DialogContent,
 } from '@mui/material';
@@ -101,6 +105,7 @@ function PrScanSecret() {
     }
   };
 
+  console.log(formData);
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -130,30 +135,36 @@ function PrScanSecret() {
     <Grid container>
       <Grid>
         <Dialog open={openDialog}>
-          <DialogTitle>Test Dailog</DialogTitle>
+          <DialogTitle>PR Config</DialogTitle>
           <DialogContent>
             <form style={{ mt: 1 }} onSubmit={handleSubmit}>
-              <TextField
-                size="small"
-                name="git"
-                label="git"
-                value={formData.git}
-                onChange={handleChange}
-                fullWidth
-              />
-              <TextField
-                size="small"
-                name="scanType"
-                label="scanType"
-                value={formData.scanType}
-                onChange={handleChange}
-                fullWidth
-                sx={{ mt: 3 }}
-              />
+              <FormControl fullWidth size="small" sx={{ mt: 1 }}>
+                <InputLabel id="demo-simple-select-label">Git</InputLabel>
+                <Select label="Git" name="git" value={formData.git} onChange={handleChange}>
+                  <MenuItem value="Github" selected>
+                    Github
+                  </MenuItem>
+                  <MenuItem value="Bitbucket">Bitbucket</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl fullWidth size="small" sx={{ mt: 3 }}>
+                <InputLabel id="demo-simple-select-label">Scan Type</InputLabel>
+                <Select
+                  label="Scan Type"
+                  name="git"
+                  value={formData.scanType}
+                  onChange={handleChange}
+                >
+                  <MenuItem value="Github" selected>
+                    Github
+                  </MenuItem>
+                  <MenuItem value="Bitbucket">Bitbucket</MenuItem>
+                </Select>
+              </FormControl>
               <TextField
                 size="small"
                 name="PRcomment"
-                label="PRcomment"
+                label="PR Comment"
                 value={formData.PRcomment}
                 onChange={handleChange}
                 fullWidth
@@ -162,7 +173,7 @@ function PrScanSecret() {
               <TextField
                 size="small"
                 name="blockPR"
-                label="blockPR"
+                label="Block PR"
                 value={formData.blockPR}
                 onChange={handleChange}
                 fullWidth
@@ -171,7 +182,7 @@ function PrScanSecret() {
               <TextField
                 size="small"
                 name="gitActions"
-                label="gitActions"
+                label="Git Actions"
                 type="boolean"
                 value={formData.gitActions}
                 onChange={handleChange}
@@ -182,7 +193,7 @@ function PrScanSecret() {
               <TextField
                 size="small"
                 name="targetRepos"
-                label="targetRepos"
+                label="Target Repos"
                 type="boolean"
                 value={formData.targetRepos}
                 onChange={handleChange}
@@ -201,17 +212,17 @@ function PrScanSecret() {
         </Dialog>
       </Grid>
       <Grid item xs={12} lg={12} display="flex" justifyContent="space-between" alignItems="center">
-        <Typography>PrScanSecret page</Typography>
-        <Button onClick={handleOpenDialog}>Edit PreScanSecret</Button>
+        <Typography>PR Scan History</Typography>
+        <Button onClick={handleOpenDialog}>Edit PR Config</Button>
       </Grid>
       <Grid item lg={12}>
         {fechedData.map((item, i) => (
-          <Card sx={{ mt: 3 }} key={i}>
+          <Card sx={{ mt: 3, bgcolor: item.scan_result ? '#BDF5BD' : '#ffcccb' }} key={i}>
             <CardContent>
               <Typography>date_of_scan: {item.date_of_scan}</Typography>
               <Typography>prLink: {item.prLink}</Typography>
               <Typography>repoName: {item.repoName}</Typography>
-              <Typography>dscan_result: {item.scan_result.toString()}</Typography>
+
               <Typography>secret_no: {item.secret_no}</Typography>
               <Typography>secrets_link: {item.secrets_link}</Typography>
             </CardContent>

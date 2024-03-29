@@ -2,10 +2,26 @@ import yaml from 'yaml';
 import { useLocation } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 
-import { Card, Grid, Typography, CardContent } from '@mui/material';
+import {
+  Box,
+  Card,
+  Grid,
+  Menu,
+  Button,
+  Checkbox,
+  FormGroup,
+  IconButton,
+  Typography,
+  CardContent,
+  FormControlLabel,
+} from '@mui/material';
+
+import Iconify from 'src/components/iconify/iconify';
 
 function FetchScanFile() {
   const [fechedData, setFetchedData] = useState([]);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [raw, setRaw] = useState('');
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const dateOfScan = searchParams.get('date_of_scan');
@@ -14,7 +30,16 @@ function FetchScanFile() {
   const splited = trimed.split(' ');
   const updatedDate = `${splited[0]}%20${splited[1]}`;
 
-  console.log('URL: ', updatedDate);
+  console.log('URL: ', fechedData);
+  console.log('Raw: ', raw);
+
+  const open = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   useEffect(() => {
     const fetchScanFile = async () => {
@@ -34,92 +59,175 @@ function FetchScanFile() {
     fetchScanFile();
   }, [updatedDate]);
 
+  // function setValue() {
+  //   if (checkboxData.length !== 0) {
+  //     const result = checkboxData.map((item) => ({
+  //       Secret: item,
+  //       OrgScope: OrgScopeValue,
+  //       Repository: repoName,
+  //     }));
+  //     setWhitelistSecrets(result);
+  //   } else {
+  //     const result = [
+  //       {
+  //         Secret: secretValue,
+  //         OrgScope: !OrgScopeValue,
+  //         Repository: repoName,
+  //       },
+  //     ];
+  //     console.log(result);
+  //     setWhitelistSecrets(result);
+  //   }
+  // }
+
+  function renderNestedValue1(nestedKey, nestedValue) {
+    let content;
+    if (nestedKey === 'Raw') {
+      content = nestedValue.slice(0, 150);
+    } else if (typeof nestedValue === 'boolean') {
+      content = nestedValue.toString();
+    } else {
+      content = nestedValue;
+    }
+    return `${nestedKey}: ${content}`;
+  }
+
+  function renderNestedValue(nestedKey, nestedValue) {
+    let content;
+    if (nestedKey === 'Raw') {
+      content = nestedValue.slice(0, 150);
+    } else if (typeof nestedValue === 'boolean') {
+      content = nestedValue.toString();
+    } else {
+      content = nestedValue;
+    }
+    return (
+      <>
+        {nestedKey}: {content}
+      </>
+    );
+  }
+
+  function renderValue(key, value) {
+    let content;
+    if (key === 'Raw') {
+      content = value.slice(0, 150);
+    } else if (typeof value === 'boolean') {
+      content = value.toString();
+    } else {
+      content = value;
+    }
+    return (
+      <Grid>
+        {key}: {content}
+      </Grid>
+    );
+  }
+
   return (
     <Grid container>
       <Grid item lg={12}>
         <Typography variant="h6">ScanFile Data:</Typography>
         {fechedData.map((item, index) => (
-          <Card sx={{ mt: 4 }} key={index}>
-            <CardContent>
-              {Object.entries(item).map(([key, value]) => (
-                <Grid key={key}>
-                  {value && typeof value === 'object' ? (
-                    <Grid>
-                      <Typography variant="subtitle1" color="primary" paragraph>
-                        {key}:
-                      </Typography>
-                      {Object.entries(value).map(([nestedKey, nestedValue]) => (
-                        <Grid key={nestedKey}>
-                          {nestedValue && typeof nestedValue === 'object' ? (
-                            <Grid>
-                              <Typography variant="subtitle2" color="textSecondary">
-                                {nestedKey}:
-                              </Typography>
-                              {Object.entries(nestedValue).map(([innerKey, innerValue]) => (
-                                <Grid key={innerKey}>
-                                  {innerValue && typeof innerValue === 'object' ? (
-                                    <Grid>
-                                      <Typography variant="body2" component="div">
-                                        {Object.entries(innerValue).map(([subKey, subValue]) => (
-                                          <div key={subKey}>
-                                            {subKey}: {subValue}
-                                          </div>
-                                        ))}
-                                      </Typography>
-                                    </Grid>
-                                  ) : (
-                                    <Grid>
-                                      {innerKey}:{' '}
-                                      {innerKey === 'Raw'
-                                        ? innerValue.slice(0, 150)
-                                        : typeof innerValue === 'boolean'
-                                        ? innerValue.toString()
-                                        : innerValue}
-                                    </Grid>
-                                  )}
-                                </Grid>
-                              ))}
-                            </Grid>
-                          ) : (
-                            <Grid>
-                              {nestedKey}:{' '}
+          <Grid sx={{ display: 'flex' }}>
+            <FormGroup sx={{ mt: 5 }}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    value={item.Raw}
+                    // onChange={(event) => {
+                    //   setRepoName('');
+                    //   handleCheckboxChange(event);
+                    // }}
+                  />
+                }
+              />
+            </FormGroup>
+            <Card sx={{ mt: 4 }} key={index}>
+              <CardContent>
+                {Object.entries(item).map(([key, value]) => (
+                  <Grid key={key}>
+                    {value && typeof value === 'object' ? (
+                      <Grid>
+                        <Grid container display="flex" justifyContent="space-between">
+                          <Typography variant="subtitle1" color="primary" paragraph>
+                            {key}:
+                          </Typography>
+                          <Box>
+                            <IconButton
+                              id="basic-button"
+                              aria-controls={open ? 'basic-menu' : undefined}
+                              aria-haspopup="true"
+                              aria-expanded={open ? 'true' : undefined}
+                              onClick={(event) => {
+                                handleClick(event);
+                              }}
+                              sx={{ height: '20px' }}
+                            >
+                              <Iconify icon="eva:more-vertical-fill" />
+                            </IconButton>
 
-                              {nestedKey === 'Raw'
-
-                                ? nestedValue.slice(0, 150)
-
-                                : typeof nestedValue === 'boolean'
-
-                                ? nestedValue.toString()
-
-                                : nestedValue}
-
-                            </Grid>
-                          )}
+                            <Menu
+                              id="basic-menu"
+                              anchorEl={anchorEl}
+                              open={open}
+                              onClose={handleClose}
+                              MenuListProps={{
+                                'aria-labelledby': 'basic-button',
+                              }}
+                            >
+                              <Button
+                                onClick={() => {
+                                  setRaw(item.Raw);
+                                  handleClose();
+                                }}
+                                startIcon={<Iconify icon="ri:checkbox-circle-fill" />}
+                                sx={{ margin: '10px' }}
+                              >
+                                Whitelist
+                              </Button>
+                            </Menu>
+                          </Box>
                         </Grid>
-                      ))}
-                    </Grid>
-                  ) : (
-                    <Grid>
-                      {key}:{' '}
-
-                      {key === 'Raw'
-
-                        ? value.slice(0, 150)
-
-                        : typeof value === 'boolean'
-
-                        ? value.toString()
-
-                        :value
-
-                      }
-                    </Grid>
-                  )}
-                </Grid>
-              ))}
-            </CardContent>
-          </Card>
+                        {Object.entries(value).map(([nestedKey, nestedValue]) => (
+                          <Grid key={nestedKey}>
+                            {nestedValue && typeof nestedValue === 'object' ? (
+                              <Grid>
+                                <Typography variant="subtitle2" color="textSecondary">
+                                  {nestedKey}:
+                                </Typography>
+                                {Object.entries(nestedValue).map(([innerKey, innerValue]) => (
+                                  <Grid key={innerKey}>
+                                    {innerValue && typeof innerValue === 'object' ? (
+                                      <Grid>
+                                        <Typography variant="body2" component="div">
+                                          {Object.entries(innerValue).map(([subKey, subValue]) => (
+                                            <div key={subKey}>
+                                              {subKey}: {subValue}
+                                            </div>
+                                          ))}
+                                        </Typography>
+                                      </Grid>
+                                    ) : (
+                                      <Grid>{renderNestedValue1(key, value)}</Grid>
+                                    )}
+                                  </Grid>
+                                ))}
+                              </Grid>
+                            ) : (
+                              <Grid>{renderNestedValue(nestedKey, nestedValue)}</Grid>
+                            )}
+                          </Grid>
+                        ))}
+                      </Grid>
+                    ) : (
+                      <Grid>{renderValue(key, value)}</Grid>
+                    )}
+                  </Grid>
+                ))}
+              </CardContent>
+            </Card>
+          </Grid>
         ))}
       </Grid>
     </Grid>

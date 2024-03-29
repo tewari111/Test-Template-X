@@ -24,7 +24,7 @@ const navConfig = [
     icon: icon('ic_blog'),
   },
   {
-    title: 'Pr-Scan-Secret',
+    title: 'PR Scan',
     path: '/pr-scan-secret',
     icon: icon('ic_blog'),
   },
