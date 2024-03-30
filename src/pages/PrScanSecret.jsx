@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
 import {
+  Box,
+  Chip,
   Card,
   Grid,
   Button,
@@ -21,6 +23,9 @@ function PrScanSecret() {
   const [openDialog, setOpenDialog] = useState(false);
   const [fechedData, setFetchedData] = useState([]);
   const [webHookData, setWebHookData] = useState([]);
+  const [options, setOptions] = useState([]);
+  const [inputValue, setInputValue] = useState('');
+
   const [formData, setFormData] = useState({
     git: '',
     scanType: '',
@@ -64,7 +69,6 @@ function PrScanSecret() {
 
   useEffect(() => {
     if (!(webHookData.git && webHookData.scanType && webHookData.PRcomment)) {
-      console.log('trued: ');
       setOpenDialog(true);
     } else {
       setOpenDialog(false);
@@ -73,39 +77,6 @@ function PrScanSecret() {
 
   console.log('Test: ', formData);
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-
-    if (name === 'targetRepos') {
-      const selectedOptions = [value];
-
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: selectedOptions,
-      }));
-    } else if (name === 'gitActions') {
-      const selectedOptions = [value];
-
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: selectedOptions,
-      }));
-    } else if (name === 'blockPR') {
-      const checkboxValue = event.target.checked;
-
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: checkboxValue,
-      }));
-    } else {
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: value,
-      }));
-    }
-  };
-
-  console.log(formData);
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -124,6 +95,38 @@ function PrScanSecret() {
       console.error(error);
     }
   };
+
+  const handleEnterKeyPress = (event) => {
+    if (event.key === 'Enter' && inputValue.trim() !== '') {
+      setOptions([...options, inputValue.trim()]);
+      setInputValue('');
+      event.preventDefault();
+    }
+  };
+
+  const handleRemoveOption = (option) => {
+    setOptions(options.filter((item) => item !== option));
+  };
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    console.log('value: ', value);
+    if (name === 'targetRepos') {
+      setInputValue(event.target.value);
+      const selectedOptions = options;
+
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: selectedOptions,
+      }));
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    }
+  };
+
   const handleOpenDialog = () => {
     setOpenDialog(true);
   };
@@ -151,14 +154,14 @@ function PrScanSecret() {
                 <InputLabel id="demo-simple-select-label">Scan Type</InputLabel>
                 <Select
                   label="Scan Type"
-                  name="git"
+                  name="scanType"
                   value={formData.scanType}
                   onChange={handleChange}
                 >
-                  <MenuItem value="Github" selected>
-                    Github
+                  <MenuItem value="Loose" selected>
+                    Loose
                   </MenuItem>
-                  <MenuItem value="Bitbucket">Bitbucket</MenuItem>
+                  <MenuItem value="Aggressive">Aggressive</MenuItem>
                 </Select>
               </FormControl>
               <TextField
@@ -170,36 +173,60 @@ function PrScanSecret() {
                 fullWidth
                 sx={{ mt: 3 }}
               />
-              <TextField
-                size="small"
-                name="blockPR"
-                label="Block PR"
-                value={formData.blockPR}
-                onChange={handleChange}
-                fullWidth
-                sx={{ mt: 3 }}
-              />
-              <TextField
-                size="small"
-                name="gitActions"
-                label="Git Actions"
-                type="boolean"
-                value={formData.gitActions}
-                onChange={handleChange}
-                fullWidth
-                sx={{ mt: 3 }}
-              />
 
-              <TextField
-                size="small"
-                name="targetRepos"
-                label="Target Repos"
-                type="boolean"
-                value={formData.targetRepos}
-                onChange={handleChange}
-                fullWidth
-                sx={{ mt: 3 }}
-              />
+              <FormControl fullWidth size="small" sx={{ mt: 3 }}>
+                <InputLabel id="demo-simple-select-label">Block PR</InputLabel>
+                <Select
+                  label="Block PR"
+                  name="blockPR"
+                  value={formData.blockPR}
+                  onChange={handleChange}
+                >
+                  <MenuItem value="true" selected>
+                    true
+                  </MenuItem>
+                  <MenuItem value="false">false</MenuItem>
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth size="small" sx={{ mt: 3 }}>
+                <InputLabel id="demo-simple-select-label">Git Actions</InputLabel>
+                <Select
+                  label="Git Actions"
+                  name="gitActions"
+                  value={formData.gitActions}
+                  onChange={handleChange}
+                  multiple
+                >
+                  <MenuItem value="create" selected>
+                    create
+                  </MenuItem>
+                  <MenuItem value="update">update</MenuItem>
+                  <MenuItem value="reopen">reopen</MenuItem>
+                </Select>
+              </FormControl>
+
+              <Grid container>
+                <TextField
+                  name="targetRepos"
+                  label="Target Repos"
+                  value={inputValue}
+                  onChange={handleChange}
+                  onKeyPress={handleEnterKeyPress}
+                  fullWidth
+                  margin="normal"
+                />
+                <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
+                  {options.map((option, index) => (
+                    <Chip
+                      key={index}
+                      label={option}
+                      onDelete={() => handleRemoveOption(option)}
+                      sx={{ margin: 0.5 }}
+                    />
+                  ))}
+                </Box>
+              </Grid>
 
               <Button type="submit" variant="contained" color="primary" sx={{ mt: 3 }}>
                 Submit
@@ -219,12 +246,22 @@ function PrScanSecret() {
         {fechedData.map((item, i) => (
           <Card sx={{ mt: 3, bgcolor: item.scan_result ? '#BDF5BD' : '#ffcccb' }} key={i}>
             <CardContent>
-              <Typography>date_of_scan: {item.date_of_scan}</Typography>
-              <Typography>prLink: {item.prLink}</Typography>
-              <Typography>repoName: {item.repoName}</Typography>
-
-              <Typography>secret_no: {item.secret_no}</Typography>
-              <Typography>secrets_link: {item.secrets_link}</Typography>
+              {Object.entries(item).map(([key, value]) => (
+                <>
+                  {key === 'scan_result' ? (
+                    ''
+                  ) : (
+                    <Grid container sx={{ boxShadow: '0px 0px 2px white', padding: '10px' }}>
+                      <Grid item xs={2} md={2} sx={{ display: 'flex' }}>
+                        <Typography sx={{ textTransform: 'capitalize' }}>{key}</Typography>
+                      </Grid>
+                      <Grid item xs={9} md={9} sx={{ display: 'flex' }}>
+                        <Typography>{value}</Typography>
+                      </Grid>
+                    </Grid>
+                  )}
+                </>
+              ))}
             </CardContent>
           </Card>
         ))}

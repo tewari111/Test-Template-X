@@ -8,11 +8,14 @@ import {
   Grid,
   Menu,
   Button,
+  Dialog,
   Checkbox,
   FormGroup,
   IconButton,
   Typography,
   CardContent,
+  DialogTitle,
+  DialogActions,
   FormControlLabel,
 } from '@mui/material';
 
@@ -21,6 +24,12 @@ import Iconify from 'src/components/iconify/iconify';
 function FetchScanFile() {
   const [fechedData, setFetchedData] = useState([]);
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [repoName, setRepoName] = useState();
+  const [verified, setVerified] = useState();
+  const [openDialog, setOpenDialog] = useState(false);
+  const [checkboxData, setCheckboxData] = useState([]);
+  const [visibility, setVisibility] = useState('hidden');
+
   const [raw, setRaw] = useState('');
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -30,8 +39,12 @@ function FetchScanFile() {
   const splited = trimed.split(' ');
   const updatedDate = `${splited[0]}%20${splited[1]}`;
 
-  console.log('URL: ', fechedData);
-  console.log('Raw: ', raw);
+  const handleOpenDialog = () => {
+    setOpenDialog(true);
+  };
+  const handelCloseDialog = () => {
+    setOpenDialog(false);
+  };
 
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
@@ -59,26 +72,60 @@ function FetchScanFile() {
     fetchScanFile();
   }, [updatedDate]);
 
-  // function setValue() {
-  //   if (checkboxData.length !== 0) {
-  //     const result = checkboxData.map((item) => ({
-  //       Secret: item,
-  //       OrgScope: OrgScopeValue,
-  //       Repository: repoName,
-  //     }));
-  //     setWhitelistSecrets(result);
-  //   } else {
-  //     const result = [
-  //       {
-  //         Secret: secretValue,
-  //         OrgScope: !OrgScopeValue,
-  //         Repository: repoName,
-  //       },
-  //     ];
-  //     console.log(result);
-  //     setWhitelistSecrets(result);
-  //   }
-  // }
+  function setValue() {
+    if (checkboxData.length !== 0) {
+      const result = checkboxData.map((item) => ({
+        Secret: item,
+        OrgScope: verified,
+        Repository: repoName,
+      }));
+      setWhitelistSecrets(result);
+    } else {
+      const result = [
+        {
+          Secret: raw,
+          OrgScope: !verified,
+          Repository: repoName,
+        },
+      ];
+
+      setWhitelistSecrets(result);
+    }
+  }
+
+  const handleCheckboxChange = (event) => {
+    const { value, checked } = event.target;
+    if (checked) {
+      setVisibility('visible');
+      setCheckboxData((prevData) => [...prevData, value]);
+    } else {
+      setCheckboxData((prevData) => prevData.filter((item) => item !== value));
+      setVisibility('hidden');
+    }
+  };
+
+  const setWhitelistSecrets = async (result) => {
+    try {
+      const response = await fetch('http://65.1.132.241:8000/setWhitelistSecrets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(result),
+      });
+
+      if (response.ok) {
+        console.log('Whitelist secrets set successfully');
+        const data = await response.json();
+        handleClose();
+        console.log(data);
+      } else {
+        console.error('Error setting whitelist secrets:', response.status, response.statusText);
+      }
+    } catch (error) {
+      console.error('Error setting whitelist secrets:', error);
+    }
+  };
 
   function renderNestedValue1(nestedKey, nestedValue) {
     let content;
@@ -126,6 +173,71 @@ function FetchScanFile() {
 
   return (
     <Grid container>
+      <Grid
+        item
+        xs={12}
+        lg={12}
+        bgcolor="lightblue"
+        alignItems="center"
+        display="flex"
+        justifyContent="space-between"
+        padding="20px"
+        visibility={visibility}
+      >
+        <Typography>{checkboxData.length} Selected</Typography>
+        <Button
+          startIcon={
+            <Iconify icon="ri:checkbox-circle-fill" sx={{ mr: 2 }} onClick={handleOpenDialog} />
+          }
+        />
+      </Grid>
+      <Dialog open={openDialog}>
+        <DialogTitle>Do you want to this white list for entire org?</DialogTitle>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              verified(true);
+              setValue();
+              handelCloseDialog();
+            }}
+          >
+            Yes
+          </Button>
+          <Button
+            onClick={() => {
+              verified(false);
+              setValue();
+              handelCloseDialog();
+            }}
+          >
+            No
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={openDialog}>
+        <DialogTitle>Do you want to this white list for entire org?</DialogTitle>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setVerified(true);
+              setValue();
+              handelCloseDialog();
+            }}
+          >
+            Yes
+          </Button>
+          <Button
+            onClick={() => {
+              setVerified(false);
+              setValue();
+              handelCloseDialog();
+            }}
+          >
+            No
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Grid item lg={12}>
         <Typography variant="h6">ScanFile Data:</Typography>
         {fechedData.map((item, index) => (
@@ -135,10 +247,10 @@ function FetchScanFile() {
                 control={
                   <Checkbox
                     value={item.Raw}
-                    // onChange={(event) => {
-                    //   setRepoName('');
-                    //   handleCheckboxChange(event);
-                    // }}
+                    onChange={(event) => {
+                      setRepoName('');
+                      handleCheckboxChange(event);
+                    }}
                   />
                 }
               />
@@ -179,7 +291,7 @@ function FetchScanFile() {
                               <Button
                                 onClick={() => {
                                   setRaw(item.Raw);
-                                  handleClose();
+                                  handleOpenDialog();
                                 }}
                                 startIcon={<Iconify icon="ri:checkbox-circle-fill" />}
                                 sx={{ margin: '10px' }}
@@ -209,19 +321,19 @@ function FetchScanFile() {
                                         </Typography>
                                       </Grid>
                                     ) : (
-                                      <Grid>{renderNestedValue1(key, value)}</Grid>
+                                      <Grid key={nestedKey}>{renderNestedValue1(key, value)}</Grid>
                                     )}
                                   </Grid>
                                 ))}
                               </Grid>
                             ) : (
-                              <Grid>{renderNestedValue(nestedKey, nestedValue)}</Grid>
+                              <Grid key={key}>{renderNestedValue(nestedKey, nestedValue)}</Grid>
                             )}
                           </Grid>
                         ))}
                       </Grid>
                     ) : (
-                      <Grid>{renderValue(key, value)}</Grid>
+                      <Grid key={key}>{renderValue(key, value)}</Grid>
                     )}
                   </Grid>
                 ))}
