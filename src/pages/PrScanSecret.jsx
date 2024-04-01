@@ -12,12 +12,13 @@ import {
   TextField,
   InputLabel,
   Typography,
-  CardContent,
   DialogTitle,
   FormControl,
   DialogActions,
   DialogContent,
 } from '@mui/material';
+
+import EditPrScan from './EditPrScan';
 
 function PrScanSecret() {
   const [openDialog, setOpenDialog] = useState(false);
@@ -69,13 +70,11 @@ function PrScanSecret() {
 
   useEffect(() => {
     if (!(webHookData.git && webHookData.scanType && webHookData.PRcomment)) {
-      setOpenDialog(true);
+      handleOpenDialog();
     } else {
       setOpenDialog(false);
     }
   }, [webHookData.git, webHookData.scanType, webHookData.PRcomment]);
-
-  console.log('Test: ', formData);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -110,7 +109,6 @@ function PrScanSecret() {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-    console.log('value: ', value);
     if (name === 'targetRepos') {
       setInputValue(event.target.value);
       const selectedOptions = options;
@@ -144,7 +142,7 @@ function PrScanSecret() {
               <FormControl fullWidth size="small" sx={{ mt: 1 }}>
                 <InputLabel id="demo-simple-select-label">Git</InputLabel>
                 <Select label="Git" name="git" value={formData.git} onChange={handleChange}>
-                  <MenuItem value="Github" selected>
+                  <MenuItem value="github" selected>
                     Github
                   </MenuItem>
                   <MenuItem value="Bitbucket">Bitbucket</MenuItem>
@@ -240,29 +238,60 @@ function PrScanSecret() {
       </Grid>
       <Grid item xs={12} lg={12} display="flex" justifyContent="space-between" alignItems="center">
         <Typography>PR Scan History</Typography>
-        <Button onClick={handleOpenDialog}>Edit PR Config</Button>
+        <Box>
+          <EditPrScan />
+        </Box>
       </Grid>
       <Grid item lg={12}>
         {fechedData.map((item, i) => (
-          <Card sx={{ mt: 3, bgcolor: item.scan_result ? '#BDF5BD' : '#ffcccb' }} key={i}>
-            <CardContent>
-              {Object.entries(item).map(([key, value]) => (
-                <>
-                  {key === 'scan_result' ? (
-                    ''
-                  ) : (
-                    <Grid container sx={{ boxShadow: '0px 0px 2px white', padding: '10px' }}>
-                      <Grid item xs={2} md={2} sx={{ display: 'flex' }}>
-                        <Typography sx={{ textTransform: 'capitalize' }}>{key}</Typography>
-                      </Grid>
-                      <Grid item xs={9} md={9} sx={{ display: 'flex' }}>
-                        <Typography>{value}</Typography>
-                      </Grid>
-                    </Grid>
-                  )}
-                </>
-              ))}
-            </CardContent>
+          <Card
+            sx={{ mt: 3, padding: '10px', bgcolor: item.scan_result ? '#BDF5BD' : '#ffcccb' }}
+            key={i}
+          >
+            <Grid container>
+              <Grid item xs={2} md={2} sx={{ display: 'flex' }}>
+                <Typography sx={{ fontWeight: 'bold' }}>PR Link</Typography>
+              </Grid>
+              <Grid item xs={9} md={9} sx={{ display: 'flex' }}>
+                <Typography>{item.prLink}</Typography>
+              </Grid>
+            </Grid>
+
+            <Grid container>
+              <Grid item xs={2} md={2} sx={{ display: 'flex' }}>
+                <Typography sx={{ fontWeight: 'bold' }}>Repo Name</Typography>
+              </Grid>
+              <Grid item xs={9} md={9} sx={{ display: 'flex' }}>
+                <Typography>{item.repoName}</Typography>
+              </Grid>
+            </Grid>
+
+            <Grid container>
+              <Grid item xs={2} md={2} sx={{ display: 'flex' }}>
+                <Typography sx={{ fontWeight: 'bold' }}>Secret No</Typography>
+              </Grid>
+              <Grid item xs={9} md={9} sx={{ display: 'flex' }}>
+                <Typography>{item.secret_no}</Typography>
+              </Grid>
+            </Grid>
+
+            <Grid container>
+              <Grid item xs={2} md={2} sx={{ display: 'flex' }}>
+                <Typography sx={{ fontWeight: 'bold' }}>Secrets Link</Typography>
+              </Grid>
+              <Grid item xs={9} md={9} sx={{ display: 'flex' }}>
+                <Typography>{item.secrets_link}</Typography>
+              </Grid>
+            </Grid>
+
+            <Grid container>
+              <Grid item xs={2} md={2} sx={{ display: 'flex' }}>
+                <Typography sx={{ fontWeight: 'bold' }}>Date of Scan</Typography>
+              </Grid>
+              <Grid item xs={9} md={9} sx={{ display: 'flex' }}>
+                <Typography>{item.date_of_scan}</Typography>
+              </Grid>
+            </Grid>
           </Card>
         ))}
       </Grid>

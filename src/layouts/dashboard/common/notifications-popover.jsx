@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { useState, useEffect } from 'react';
+import { formatDistanceToNow } from 'date-fns';
 
-import Box from '@mui/material/Box';
 import Badge from '@mui/material/Badge';
 import Avatar from '@mui/material/Avatar';
 import Popover from '@mui/material/Popover';
@@ -10,6 +10,8 @@ import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import ListItemButton from '@mui/material/ListItemButton';
+import { Box, Grid, Alert, AlertTitle } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import { fToNow } from 'src/utils/format-time';
 
@@ -18,21 +20,10 @@ import Iconify from 'src/components/iconify';
 // ----------------------------------------------------------------------
 
 export default function NotificationsPopover() {
-  // const [notifications, setNotifications] = useState(NOTIFICATIONS);
-
-  // const totalUnRead = notifications.filter((item) => item.isUnRead === true).length;
-
   const [open, setOpen] = useState(null);
-
-  const [messages, setMessages] = useState([]);
-
-  useEffect(() => {
-    const storedMessages = JSON.parse(localStorage.getItem('postRequestMessages'));
-    if (storedMessages) {
-      setMessages(storedMessages);
-    }
-  }, []);
-
+  const [logs, setLogs] = useState([]);
+  const [errors, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
   const handleOpen = (event) => {
     setOpen(event.currentTarget);
   };
@@ -41,15 +32,34 @@ export default function NotificationsPopover() {
     setOpen(null);
   };
 
-  // const handleMarkAllAsRead = () => {
-  //   setNotifications(
-  //     notifications.map((notification) => ({
-  //       ...notification,
-  //       isUnRead: false,
-  //     }))
-  //   );
-  // };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('http://65.1.132.241:8000/getLogs');
+        if (response.ok) {
+          const data = await response.json();
+          setLogs(data.logs);
+        } else {
+          throw new Error('Failed to fetch logs');
+        }
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    fetchData();
+  }, []);
+
+  function formatTimeAgo(timestamp) {
+    const date = new Date(timestamp * 1000);
+    return formatDistanceToNow(date, { addSuffix: true });
+  }
+
+  if (errors) {
+    return <Typography color="red">{errors}</Typography>;
+  }
   return (
     <>
       <IconButton color={open ? 'primary' : 'default'} onClick={handleOpen}>
@@ -75,19 +85,47 @@ export default function NotificationsPopover() {
         <Box sx={{ display: 'flex', alignItems: 'center', py: 2, px: 2.5 }}>
           <Box sx={{ flexGrow: 1 }}>
             <Typography variant="subtitle1">Your History</Typography>
-            {messages.map((message, index) => (
-              <Typography
-                variant="body2"
-                key={index}
-                sx={{
-                  color: 'text.secondary',
-                  borderBottom: '1px solid gray',
-                  mt: 5,
-                }}
-              >
-                {message}
-              </Typography>
-            ))}
+            {errors ? (
+              <Typography color="red">{errors}</Typography>
+            ) : (
+              <>
+                {loading ? (
+                  <Grid container display="flex" justifyContent="center" alignItems="center">
+                    <CircularProgress />
+                  </Grid>
+                ) : (
+                  <Grid container>
+                    {logs.map((log, i) => (
+                      <Grid item lg={12} xss={12} key={i}>
+                        {log.request_method === 'POST' ? (
+                          <Alert
+                            severity="success"
+                            sx={{ mt: 1, width: '100%', bgcolor: '#00008B', color: 'white' }}
+                          >
+                            <AlertTitle>{formatTimeAgo(log.request_time)}</AlertTitle>
+                            Configs updated
+                          </Alert>
+                        ) : (
+                          ''
+                        )}
+
+                        {log.request_method === 'GET' ? (
+                          <Alert
+                            severity="success"
+                            sx={{ mt: 1, width: '100%', bgcolor: '#00008B', color: 'white' }}
+                          >
+                            <AlertTitle>{formatTimeAgo(log.request_time)}</AlertTitle>
+                            Org scan started!
+                          </Alert>
+                        ) : (
+                          ''
+                        )}
+                      </Grid>
+                    ))}
+                  </Grid>
+                )}
+              </>
+            )}
           </Box>
         </Box>
       </Popover>
