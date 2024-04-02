@@ -10,7 +10,8 @@ import TableBody from '@mui/material/TableBody';
 import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
-import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
+import { Grid, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 
 // import { users } from 'src/_mock/user';
 
@@ -39,6 +40,7 @@ export default function UserPage() {
   const [filterName, setFilterName] = useState('');
 
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [loading, setLoading] = useState(true);
 
   const [open, setOpen] = useState(false);
   // const [formData, setFormData] = useState({
@@ -63,6 +65,8 @@ export default function UserPage() {
       }
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -80,18 +84,26 @@ export default function UserPage() {
 
   console.log(scanData);
   const fetchScanOrg = async () => {
-    const currentTime = new Date().toLocaleTimeString();
-    const currentDate = new Date().toLocaleDateString();
-    const newMessageEntry = `Org scan started!: ${currentDate} ${currentTime}`;
+    // const currentTime = new Date().toLocaleTimeString();
+    // const currentDate = new Date().toLocaleDateString();
+    // const newMessageEntry = `Org scan started!: ${currentDate} ${currentTime}`;
 
-    // Retrieve the existing messages array from localStorage
-    const storedMessages = localStorage.getItem('postRequestMessages');
-    const messages = storedMessages ? JSON.parse(storedMessages) : [];
+    // // Retrieve the existing messages array from localStorage
+    // const storedMessages = localStorage.getItem('postRequestMessages');
+    // const messages = storedMessages ? JSON.parse(storedMessages) : [];
 
-    const updatedMessages = [...messages, newMessageEntry];
-    localStorage.setItem('postRequestMessages', JSON.stringify(updatedMessages));
+    // const updatedMessages = [...messages, newMessageEntry];
+    // localStorage.setItem('postRequestMessages', JSON.stringify(updatedMessages));
     try {
-      await fetch('http://65.1.132.241:8000/scanOrg');
+      const res = await fetch('http://65.1.132.241:8000/scanOrg', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (res.ok) {
+        console.log('ressssssss: ', res);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -275,31 +287,37 @@ export default function UserPage() {
                 // { id: '' },
               ]}
             />
-            <TableBody>
-              {dataFiltered
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, i) => (
-                  <UserTableRow
-                    key={i}
-                    id={i}
-                    name={row.repository}
-                    show="Show secrets"
-                    status={i}
-                    secrets={row.secrets.length}
-                    // avatarUrl={row.avatarUrl}
-                    commits={row.totalNoCommits}
-                    selected={selected.indexOf(row.repository) !== -1}
-                    handleClick={(event) => handleClick(event, row.repository)}
-                  />
-                ))}
-              {/* user data */}
-              <TableEmptyRows
-                height={77}
-                emptyRows={emptyRows(page, rowsPerPage, scanData.length)}
-              />
+            {loading ? (
+              <Grid sx={{ position: 'relative', left: '400%', top: '20px', padding: '30px' }}>
+                <CircularProgress />
+              </Grid>
+            ) : (
+              <TableBody>
+                {dataFiltered
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row, i) => (
+                    <UserTableRow
+                      key={i}
+                      id={i}
+                      name={row.repository}
+                      show="Show secrets"
+                      status={i}
+                      secrets={row.secrets.length}
+                      // avatarUrl={row.avatarUrl}
+                      commits={row.totalNoCommits}
+                      selected={selected.indexOf(row.repository) !== -1}
+                      handleClick={(event) => handleClick(event, row.repository)}
+                    />
+                  ))}
 
-              {notFound && <TableNoData query={filterName} />}
-            </TableBody>
+                {/* user data */}
+                <TableEmptyRows
+                  height={77}
+                  emptyRows={emptyRows(page, rowsPerPage, scanData.length)}
+                />
+                {notFound && <TableNoData query={filterName} />}
+              </TableBody>
+            )}
           </Table>
         </TableContainer>
       </Scrollbar>

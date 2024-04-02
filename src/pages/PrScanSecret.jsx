@@ -89,6 +89,8 @@ function PrScanSecret() {
       });
       if (response.ok) {
         setOpenDialog(false);
+      }else{
+        setOpenDialog(true)
       }
     } catch (error) {
       console.error(error);
