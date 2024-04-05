@@ -30,7 +30,7 @@ import { emptyRows, applyFilter, getComparator } from '../utils';
 
 export default function UserPage() {
   const [page, setPage] = useState(0);
-
+  const [sort, setSort] = useState(true);
   const [order, setOrder] = useState('asc');
 
   const [selected, setSelected] = useState([]);
@@ -41,6 +41,8 @@ export default function UserPage() {
 
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [loading, setLoading] = useState(true);
+  const [totalPages, setTotalPages] = useState(0);
+  const [fullOrgScan, setFullOrgScan] = useState();
 
   const [open, setOpen] = useState(false);
   // const [formData, setFormData] = useState({
@@ -63,6 +65,7 @@ export default function UserPage() {
         );
         if (response.ok) {
           const data = await response.json();
+          setTotalPages(data.totalPages);
           setScanData(data.repositories);
         }
       } catch (error) {
@@ -76,9 +79,6 @@ export default function UserPage() {
     fetchTotlaRepos();
   }, [page, rowsPerPage, startIndex, endIndex]);
 
-  console.log('apiUrl: ', process.env.REACT_APP_API_URL_DEV);
-  console.log('apiUrl1 test: ', process.env.test);
-
   const fetchTotlaRepos = async () => {
     try {
       const response = await fetch(process.env.settings);
@@ -91,7 +91,8 @@ export default function UserPage() {
     }
   };
 
-  console.log(scanData);
+  // console.log(scanData);
+  console.log(fullOrgScan);
 
   const fetchScanOrg = async () => {
     try {
@@ -102,7 +103,7 @@ export default function UserPage() {
         },
       });
       if (res.ok) {
-        console.log('ressssssss: ', res);
+        // console.log('ressssssss: ', res);
       }
     } catch (error) {
       console.error(error);
@@ -127,10 +128,10 @@ export default function UserPage() {
   // };
 
   const handleOpen = () => {
-    fetchScanOrg();
     setOpen(true);
   };
   const handleClose = () => {
+    fetchScanOrg();
     setOpen(false);
   };
 
@@ -150,7 +151,6 @@ export default function UserPage() {
   // };
 
   const handleSort = (event, id) => {
-    console.log(orderBy, id, order);
     const isAsc = orderBy === id && order === 'asc';
     if (id !== '') {
       setOrder(isAsc ? 'desc' : 'asc');
@@ -208,14 +208,38 @@ export default function UserPage() {
   const handleFilterByName = (event) => {
     setPage(0);
     setFilterName(event.target.value);
+    handleSearch(filterName);
   };
 
-  console.log(scanData);
+  const handleSearch = async (keyword) => {
+    const url = `${process.env.getOrgScan}?start_index=${startIndex}&end_index=${endIndex}&sort=${sort}&keyword=${keyword}`;
+    fetch(url)
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        }
+
+        return response;
+      })
+      .then((data) => {
+        setSort(true);
+        if (sort) {
+          const repos = data.repositories;
+          repos.sort((a, b) => b.secrets.length - a.secrets.length);
+          setScanData(repos);
+          // console.log('repost after sort: ', repos);
+        } else {
+          setScanData(data.repositories);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
   // users data change with api data
   const dataFiltered = applyFilter({
     inputData: scanData,
     comparator: getComparator(order, orderBy),
-    filterName,
+    // filterName,
   });
 
   const notFound = !dataFiltered.length && !!filterName;
@@ -238,10 +262,22 @@ export default function UserPage() {
             <Typography variant="body1">Started!</Typography>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleClose} sx={{ color: 'green' }}>
+            <Button
+              onClick={() => {
+                setFullOrgScan(true);
+                handleClose();
+              }}
+              sx={{ color: 'green' }}
+            >
               Scan New Repos only
             </Button>
-            <Button onClick={handleClose} sx={{ color: '#FF474C' }}>
+            <Button
+              onClick={() => {
+                setFullOrgScan(false);
+                handleClose();
+              }}
+              sx={{ color: '#FF474C' }}
+            >
               Entire Org Again
             </Button>
           </DialogActions>
@@ -331,7 +367,7 @@ export default function UserPage() {
       <TablePagination
         page={page}
         component="div"
-        count={scanData.length}
+        count={totalPages}
         rowsPerPage={rowsPerPage}
         onPageChange={handleChangePage}
         rowsPerPageOptions={[startIndex, rowsPerPage, endIndex]}
