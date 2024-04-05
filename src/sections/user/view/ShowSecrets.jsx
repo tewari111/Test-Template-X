@@ -34,12 +34,14 @@ const ShowSecrets = () => {
   const [repoName, setRepoName] = useState();
   const [visibility, setVisibility] = useState('hidden');
   const [secretValue, setSecret] = useState();
-  const { id } = useParams();
+  const { id, startIndex, endIndex } = useParams();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://65.1.132.241:8000/getOrgScan');
+        const response = await fetch(
+          `${process.env.getOrgScan}?start_index=${startIndex}&end_index=${endIndex}`
+        );
         const data = await response.json();
         setSecretsData(data.repositories);
       } catch (error) {
@@ -50,11 +52,11 @@ const ShowSecrets = () => {
     };
 
     fetchData();
-  }, []);
+  }, [startIndex, endIndex]);
 
   const setWhitelistSecrets = async (result) => {
     try {
-      const response = await fetch('http://65.1.132.241:8000/setWhitelistSecrets', {
+      const response = await fetch(process.env.setWhitelistSecrets, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -250,7 +252,9 @@ const ShowSecrets = () => {
                                 <Typography variant="body2">
                                   Fingerprint: {secret.Fingerprint}
                                 </Typography>
-                                <Typography variant="body2">Match: {secret.Match}</Typography>
+                                <Typography variant="body2">
+                                  Match: {secret.Match.slice(0, 100)}
+                                </Typography>
                                 <Typography variant="body2">Message: {secret.Message}</Typography>
                                 <Typography variant="body2">RuleID: {secret.RuleID}</Typography>
                                 <Typography variant="body2">

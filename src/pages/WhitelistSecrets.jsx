@@ -22,7 +22,7 @@ export default function WhitelistSecrets() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch('http://65.1.132.241:8000/getWhitelistSecrets');
+        const res = await fetch(process.env.getWhitelistSecrets);
         if (res.ok) {
           const data = await res.json();
           setFetchedData(data);
@@ -37,7 +37,7 @@ export default function WhitelistSecrets() {
   }, []);
 
   const handleClick = async () => {
-    fetch('http://65.1.132.241:8000/removeWhitelistSecrets', {
+    fetch(process.env.removeWhitelistSecrets, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

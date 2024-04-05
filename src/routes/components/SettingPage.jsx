@@ -28,7 +28,7 @@ const SettingPage = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch('http://65.1.132.241:8000/settings');
+      const response = await fetch(process.env.settings);
       if (response.ok) {
         const data = await response.json();
         setFormData(data);
@@ -49,7 +49,7 @@ const SettingPage = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const response = await fetch('http://65.1.132.241:8000/settings', {
+      const response = await fetch(process.env.settings, {
         method: 'POST', // or 'PUT' if applicable
         headers: {
           'Content-Type': 'application/json',

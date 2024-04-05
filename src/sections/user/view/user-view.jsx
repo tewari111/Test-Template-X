@@ -51,28 +51,37 @@ export default function UserPage() {
   const [scanData, setScanData] = useState([]);
   const [totalRepos, setTotalRepos] = useState([]);
   // const [messages, setMessages] = useState([]);
-  useEffect(() => {
-    fetchTotlaRepos();
-    fetchScanData();
-  }, []);
 
-  const fetchScanData = async () => {
-    try {
-      const response = await fetch('http://65.1.132.241:8000/getOrgScan');
-      if (response.ok) {
-        const data = await response.json();
-        setScanData(data.repositories);
+  const startIndex = page * rowsPerPage;
+  const endIndex = startIndex + rowsPerPage;
+
+  useEffect(() => {
+    const fetchScanData = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.getOrgScan}?start_index=${startIndex}&end_index=${endIndex}`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setScanData(data.repositories);
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+
+    fetchScanData();
+    fetchTotlaRepos();
+  }, [page, rowsPerPage, startIndex, endIndex]);
+
+  console.log('apiUrl: ', process.env.REACT_APP_API_URL_DEV);
+  console.log('apiUrl1 test: ', process.env.test);
 
   const fetchTotlaRepos = async () => {
     try {
-      const response = await fetch('http://65.1.132.241:8000/settings');
+      const response = await fetch(process.env.settings);
       if (response.ok) {
         const data = await response.json();
         setTotalRepos(data);
@@ -83,19 +92,10 @@ export default function UserPage() {
   };
 
   console.log(scanData);
+
   const fetchScanOrg = async () => {
-    // const currentTime = new Date().toLocaleTimeString();
-    // const currentDate = new Date().toLocaleDateString();
-    // const newMessageEntry = `Org scan started!: ${currentDate} ${currentTime}`;
-
-    // // Retrieve the existing messages array from localStorage
-    // const storedMessages = localStorage.getItem('postRequestMessages');
-    // const messages = storedMessages ? JSON.parse(storedMessages) : [];
-
-    // const updatedMessages = [...messages, newMessageEntry];
-    // localStorage.setItem('postRequestMessages', JSON.stringify(updatedMessages));
     try {
-      const res = await fetch('http://65.1.132.241:8000/scanOrg', {
+      const res = await fetch(process.env.scanOrg, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -210,6 +210,7 @@ export default function UserPage() {
     setFilterName(event.target.value);
   };
 
+  console.log(scanData);
   // users data change with api data
   const dataFiltered = applyFilter({
     inputData: scanData,
@@ -237,8 +238,11 @@ export default function UserPage() {
             <Typography variant="body1">Started!</Typography>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleClose} color="primary">
-              Close
+            <Button onClick={handleClose} sx={{ color: 'green' }}>
+              Scan New Repos only
+            </Button>
+            <Button onClick={handleClose} sx={{ color: '#FF474C' }}>
+              Entire Org Again
             </Button>
           </DialogActions>
         </Dialog>
@@ -301,6 +305,8 @@ export default function UserPage() {
                       id={i}
                       name={row.repository}
                       show="Show secrets"
+                      startIndex={startIndex}
+                      endIndex={endIndex}
                       status={i}
                       secrets={row.secrets.length}
                       // avatarUrl={row.avatarUrl}
@@ -328,7 +334,7 @@ export default function UserPage() {
         count={scanData.length}
         rowsPerPage={rowsPerPage}
         onPageChange={handleChangePage}
-        rowsPerPageOptions={[5, 10, 25]}
+        rowsPerPageOptions={[startIndex, rowsPerPage, endIndex]}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
       {/* </Card> */}

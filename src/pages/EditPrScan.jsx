@@ -35,7 +35,7 @@ function EditPrScan() {
   useEffect(() => {
     const webHookConfig = async () => {
       try {
-        const response = await fetch('http://65.1.132.241:8000/webhookConfig');
+        const response = await fetch(process.env.webhookConfig);
         if (response.ok) {
           const responseData = await response.json();
           setFormData(responseData);
@@ -52,7 +52,7 @@ function EditPrScan() {
   useEffect(() => {
     const fetchPrScanSecret = async () => {
       try {
-        const response = await fetch('http://65.1.132.241:8000/prScanSecret');
+        const response = await fetch(process.env.prScanSecret);
         if (response.ok) {
           const responseData = await response.json();
           setFormData(responseData.scanData);
@@ -69,7 +69,7 @@ function EditPrScan() {
     event.preventDefault();
 
     try {
-      const response = await fetch('http://65.1.132.241:8000/webhookConfig', {
+      const response = await fetch(process.env.webhookConfig, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

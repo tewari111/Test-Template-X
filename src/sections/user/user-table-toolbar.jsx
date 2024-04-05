@@ -28,7 +28,7 @@ export default function UserTableToolbar({ numSelected, filterName, onFilterName
     const updatedMessages = [...messages, newMessageEntry];
     localStorage.setItem('postRequestMessages', JSON.stringify(updatedMessages));
     handleOpenDialog();
-    fetch('http://65.1.132.241:8000/scanRepo', {
+    fetch(process.env.scanRepo, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

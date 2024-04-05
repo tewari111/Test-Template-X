@@ -39,9 +39,10 @@ function PrScanSecret() {
   useEffect(() => {
     const webHookConfig = async () => {
       try {
-        const response = await fetch('http://65.1.132.241:8000/webhookConfig');
+        const response = await fetch(process.env.webhookConfig);
         if (response.ok) {
           const responseData = await response.json();
+          console.log(response);
           setWebHookData(responseData);
         }
       } catch (error) {
@@ -55,10 +56,13 @@ function PrScanSecret() {
   useEffect(() => {
     const fetchPrScanSecret = async () => {
       try {
-        const response = await fetch('http://65.1.132.241:8000/prScanSecret');
+        const response = await fetch(process.env.prScanSecret);
         if (response.ok) {
           const responseData = await response.json();
-          setFetchedData(responseData.scanData);
+          console.log(response);
+          const res = responseData.scanData;
+          res.sort((a, b) => new Date(b.date_of_scan) - new Date(a.date_of_scan));
+          setFetchedData(res);
         }
       } catch (error) {
         console.error(error);
@@ -80,7 +84,7 @@ function PrScanSecret() {
     event.preventDefault();
 
     try {
-      const response = await fetch('http://65.1.132.241:8000/webhookConfig', {
+      const response = await fetch(process.env.webhookConfig, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -89,8 +93,8 @@ function PrScanSecret() {
       });
       if (response.ok) {
         setOpenDialog(false);
-      }else{
-        setOpenDialog(true)
+      } else {
+        setOpenDialog(true);
       }
     } catch (error) {
       console.error(error);
@@ -247,7 +251,12 @@ function PrScanSecret() {
       <Grid item lg={12}>
         {fechedData.map((item, i) => (
           <Card
-            sx={{ mt: 3, padding: '10px', bgcolor: item.scan_result ? '#BDF5BD' : '#ffcccb' }}
+            sx={{
+              mt: 3,
+              padding: '5px 10px',
+              bgcolor: item.scan_result ? '#BDF5BD' : '#ffcccb',
+              borderRadius: '10px',
+            }}
             key={i}
           >
             <Grid container>
@@ -255,7 +264,7 @@ function PrScanSecret() {
                 <Typography sx={{ fontWeight: 'bold' }}>PR Link</Typography>
               </Grid>
               <Grid item xs={9} md={9} sx={{ display: 'flex' }}>
-                <Typography>{item.prLink}</Typography>
+                <a href={item.prLink}>{item.prLink}</a>
               </Grid>
             </Grid>
 
@@ -276,16 +285,6 @@ function PrScanSecret() {
                 <Typography>{item.secret_no}</Typography>
               </Grid>
             </Grid>
-
-            <Grid container>
-              <Grid item xs={2} md={2} sx={{ display: 'flex' }}>
-                <Typography sx={{ fontWeight: 'bold' }}>Secrets Link</Typography>
-              </Grid>
-              <Grid item xs={9} md={9} sx={{ display: 'flex' }}>
-                <Typography>{item.secrets_link}</Typography>
-              </Grid>
-            </Grid>
-
             <Grid container>
               <Grid item xs={2} md={2} sx={{ display: 'flex' }}>
                 <Typography sx={{ fontWeight: 'bold' }}>Date of Scan</Typography>

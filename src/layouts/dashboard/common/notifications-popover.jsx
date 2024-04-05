@@ -35,7 +35,7 @@ export default function NotificationsPopover() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://65.1.132.241:8000/getLogs');
+        const response = await fetch(process.env.getLogs);
         if (response.ok) {
           const data = await response.json();
           setLogs(data.logs);

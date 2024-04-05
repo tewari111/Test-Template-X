@@ -28,6 +28,8 @@ export default function UserTableRow({
   secrets,
   show,
   // status,
+  startIndex,
+  endIndex,
   id,
   commits,
   handleClick,
@@ -49,7 +51,7 @@ export default function UserTableRow({
     const updatedMessages = [...messages, newMessageEntry];
     localStorage.setItem('postRequestMessages', JSON.stringify(updatedMessages));
     handleOpenDialog();
-    fetch('http://65.1.132.241:8000/scanRepo', {
+    fetch(process.env.scanRepo, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -108,7 +110,7 @@ export default function UserTableRow({
           <Link underline="hover" sx={{ my: 3 }}>
             <Button
               onClick={() => {
-                navigate(`/secrets/${id}`);
+                navigate(`/secrets/${id}/${startIndex}/${endIndex}`);
               }}
             >
               {show}
@@ -167,6 +169,8 @@ UserTableRow.propTypes = {
   name: PropTypes.any,
   show: PropTypes.any,
   selected: PropTypes.any,
+  startIndex: PropTypes.number,
+  endIndex: PropTypes.number,
   // status: PropTypes.string,
   id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };

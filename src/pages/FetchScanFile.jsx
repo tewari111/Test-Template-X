@@ -57,9 +57,7 @@ function FetchScanFile() {
   useEffect(() => {
     const fetchScanFile = async () => {
       try {
-        const response = await fetch(
-          `http://65.1.132.241:8000/fetchScanFile?date_of_scan=${updatedDate}`
-        );
+        const response = await fetch(`${process.env.fetchScanFile}${updatedDate}`);
         const responseData = await response.text();
         const parsedData = yaml.parse(responseData);
         setFetchedData(parsedData);
@@ -106,7 +104,7 @@ function FetchScanFile() {
 
   const setWhitelistSecrets = async (result) => {
     try {
-      const response = await fetch('http://65.1.132.241:8000/setWhitelistSecrets', {
+      const response = await fetch(process.env.setWhitelistSecrets, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
