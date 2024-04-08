@@ -13,9 +13,16 @@ import Iconify from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function UserTableToolbar({ numSelected, filterName, onFilterName, selected }) {
+export default function UserTableToolbar({
+  numSelected,
+  filterName,
+  onFilterName,
+  onKeyUp,
+  selected,
+}) {
   const [openDialog, setOpenDialog] = useState(false);
 
+  console.log('filtername..........', filterName);
   const reScan = async () => {
     const currentTime = new Date().toLocaleTimeString();
     const currentDate = new Date().toLocaleDateString();
@@ -77,6 +84,7 @@ export default function UserTableToolbar({ numSelected, filterName, onFilterName
           <OutlinedInput
             value={filterName}
             onChange={onFilterName}
+            onKeyUp={onKeyUp}
             placeholder="Search and sort feature.."
             startAdornment={
               <InputAdornment position="start">
@@ -128,4 +136,5 @@ UserTableToolbar.propTypes = {
   filterName: PropTypes.string,
   onFilterName: PropTypes.func,
   selected: PropTypes.array,
+  onKeyUp: PropTypes.func,
 };

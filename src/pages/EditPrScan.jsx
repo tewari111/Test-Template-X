@@ -38,6 +38,7 @@ function EditPrScan() {
         const response = await fetch(process.env.webhookConfig);
         if (response.ok) {
           const responseData = await response.json();
+          console.log('test============+++++++>');
           setFormData(responseData);
           setOptions(responseData.targetRepos);
         }
@@ -47,22 +48,6 @@ function EditPrScan() {
       }
     };
     webHookConfig();
-  }, [options]);
-
-  useEffect(() => {
-    const fetchPrScanSecret = async () => {
-      try {
-        const response = await fetch(process.env.prScanSecret);
-        if (response.ok) {
-          const responseData = await response.json();
-          setFormData(responseData.scanData);
-        }
-      } catch (error) {
-        console.error(error);
-        // Handle the error appropriately (e.g., show an error message to the user)
-      }
-    };
-    fetchPrScanSecret();
   }, []);
 
   const handleSubmit = async (event) => {

@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 import CircularProgress from '@mui/material/CircularProgress';
-import { Grid, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { Grid, Dialog, DialogTitle, DialogActions } from '@mui/material';
 
 // import { users } from 'src/_mock/user';
 
@@ -55,7 +55,9 @@ export default function UserPage() {
   // const [messages, setMessages] = useState([]);
 
   const startIndex = page * rowsPerPage;
-  const endIndex = startIndex + rowsPerPage;
+  const endIndex = (page + 1) * rowsPerPage;
+  console.log('startIndex.........', startIndex);
+  console.log('endIndex.........', endIndex);
 
   useEffect(() => {
     const fetchScanData = async () => {
@@ -112,21 +114,6 @@ export default function UserPage() {
 
   const totalReposPercent = (scanData.length / totalRepos.totalRepos) * 100 || 0;
 
-  // const handleInputChange = (e) => {
-  //   const { url, value } = e.target;
-
-  //   setFormData({
-  //     ...formData,
-  //     [url]: value,
-  //   });
-  // };
-
-  // const handleSubmit = () => {
-  //   // Handle form submission here, e.g., send data to backend
-  //   console.log(formData);
-  //   handleClose();
-  // };
-
   const handleOpen = () => {
     setOpen(true);
   };
@@ -134,21 +121,6 @@ export default function UserPage() {
     fetchScanOrg();
     setOpen(false);
   };
-
-  // const handleInputChange = (e) => {
-  //   const { url, value } = e.target;
-
-  //   setFormData({
-  //     ...formData,
-  //     [url]: value,
-  //   });
-  // };
-
-  // const handleSubmit = () => {
-  //   // Handle form submission here, e.g., send data to backend
-  //   console.log(formData);
-  //   handleClose();
-  // };
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
@@ -208,11 +180,10 @@ export default function UserPage() {
   const handleFilterByName = (event) => {
     setPage(0);
     setFilterName(event.target.value);
-    handleSearch(filterName);
   };
 
   const handleSearch = async (keyword) => {
-    const url = `${process.env.getOrgScan}?start_index=${startIndex}&end_index=${endIndex}&sort=${sort}&keyword=${keyword}`;
+    const url = `${process.env.getOrgScan}?start_index=${startIndex}&end_index=${endIndex}&sort=${sort}&keyword=${filterName}`;
     fetch(url)
       .then((response) => {
         if (response.ok) {
@@ -225,7 +196,7 @@ export default function UserPage() {
         setSort(true);
         if (sort) {
           const repos = data.repositories;
-          repos.sort((a, b) => b.secrets.length - a.secrets.length);
+          repos.sort((a, b) => a.secrets.length - b.secrets.length);
           setScanData(repos);
           // console.log('repost after sort: ', repos);
         } else {
@@ -239,18 +210,11 @@ export default function UserPage() {
   const dataFiltered = applyFilter({
     inputData: scanData,
     comparator: getComparator(order, orderBy),
-    // filterName,
+    filterName,
   });
 
   const notFound = !dataFiltered.length && !!filterName;
 
-  // if (scanData.length === 0) {
-  //   scanData([]);
-  // }
-
-  // if (totalRepos.length === 0) {
-  //   totalRepos([]);
-  // }
   return (
     <Container>
       <Stack direction="row" justifyContent="space-between" mb={6}>
@@ -258,9 +222,6 @@ export default function UserPage() {
 
         <Dialog open={!!open} onClose={handleClose}>
           <DialogTitle>Start ScanOrg for fethc api</DialogTitle>
-          <DialogContent>
-            <Typography variant="body1">Started!</Typography>
-          </DialogContent>
           <DialogActions>
             <Button
               onClick={() => {
@@ -302,6 +263,7 @@ export default function UserPage() {
         numSelected={selected.length}
         filterName={filterName}
         onFilterName={handleFilterByName}
+        onKeyUp={handleSearch}
         selected={selected}
       />
 
@@ -370,7 +332,7 @@ export default function UserPage() {
         count={totalPages}
         rowsPerPage={rowsPerPage}
         onPageChange={handleChangePage}
-        rowsPerPageOptions={[startIndex, rowsPerPage, endIndex]}
+        rowsPerPageOptions={[5, 10, 25]}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
       {/* </Card> */}

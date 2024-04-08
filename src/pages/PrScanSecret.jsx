@@ -59,7 +59,6 @@ function PrScanSecret() {
         const response = await fetch(process.env.prScanSecret);
         if (response.ok) {
           const responseData = await response.json();
-          console.log(response);
           const res = responseData.scanData;
           res.sort((a, b) => new Date(b.date_of_scan) - new Date(a.date_of_scan));
           setFetchedData(res);
@@ -216,7 +215,7 @@ function PrScanSecret() {
                   label="Target Repos"
                   value={inputValue}
                   onChange={handleChange}
-                  onKeyPress={handleEnterKeyPress}
+                  onKeyUp={handleEnterKeyPress}
                   fullWidth
                   margin="normal"
                 />
@@ -285,14 +284,27 @@ function PrScanSecret() {
                 <Typography>{item.secret_no}</Typography>
               </Grid>
             </Grid>
-            <Grid container>
-              <Grid item xs={2} md={2} sx={{ display: 'flex' }}>
-                <Typography sx={{ fontWeight: 'bold' }}>Date of Scan</Typography>
+            {!item.scan_result ? (
+              <Grid container>
+                <Grid item xs={2} md={2} sx={{ display: 'flex' }}>
+                  <Typography sx={{ fontWeight: 'bold' }}>Secret File</Typography>
+                </Grid>
+                <Grid item xs={9} md={9} sx={{ display: 'flex' }}>
+                  <a href="http://localhost:3030/showNewSecret?date_of_scan=2024-03-27%2009:27:47.544106">
+                    http://localhost:3030/showNewSecret?date_of_scan=2024-03-27%2009:27:47.544106
+                  </a>
+                </Grid>
               </Grid>
-              <Grid item xs={9} md={9} sx={{ display: 'flex' }}>
-                <Typography>{item.date_of_scan}</Typography>
+            ) : (
+              <Grid container>
+                <Grid item xs={2} md={2} sx={{ display: 'flex' }}>
+                  <Typography sx={{ fontWeight: 'bold' }}>Date of Scan</Typography>
+                </Grid>
+                <Grid item xs={9} md={9} sx={{ display: 'flex' }}>
+                  <Typography>{item.date_of_scan}</Typography>
+                </Grid>
               </Grid>
-            </Grid>
+            )}
           </Card>
         ))}
       </Grid>
