@@ -2,6 +2,7 @@ import yaml from 'yaml';
 import { useLocation } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 
+import CircularProgress from '@mui/material/CircularProgress';
 import {
   Box,
   Card,
@@ -29,6 +30,7 @@ function FetchScanFile() {
   const [openDialog, setOpenDialog] = useState(false);
   const [checkboxData, setCheckboxData] = useState([]);
   const [visibility, setVisibility] = useState('hidden');
+  const [loading, setLoading] = useState(true);
 
   const [raw, setRaw] = useState('');
   const location = useLocation();
@@ -64,6 +66,8 @@ function FetchScanFile() {
       } catch (error) {
         console.error(error);
         // Handle the error appropriately (e.g., show an error message to the user)
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -114,9 +118,8 @@ function FetchScanFile() {
 
       if (response.ok) {
         console.log('Whitelist secrets set successfully');
-        const data = await response.json();
+        // const data = await response.json();
         handleClose();
-        console.log(data);
       } else {
         console.error('Error setting whitelist secrets:', response.status, response.statusText);
       }
@@ -237,108 +240,121 @@ function FetchScanFile() {
         </DialogActions>
       </Dialog>
       <Grid item lg={12}>
-        <Typography variant="h6">ScanFile Data:</Typography>
-        {fechedData.map((item, index) => (
-          <Grid sx={{ display: 'flex' }}>
-            <FormGroup sx={{ mt: 5 }}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    value={item.Raw}
-                    onChange={(event) => {
-                      setRepoName('');
-                      handleCheckboxChange(event);
-                    }}
-                  />
-                }
-              />
-            </FormGroup>
-            <Card sx={{ mt: 4 }} key={index}>
-              <CardContent>
-                {Object.entries(item).map(([key, value]) => (
-                  <Grid key={key}>
-                    {value && typeof value === 'object' ? (
-                      <Grid>
-                        <Grid container display="flex" justifyContent="space-between">
-                          <Typography variant="subtitle1" color="primary" paragraph>
-                            {key}:
-                          </Typography>
-                          <Box>
-                            <IconButton
-                              id="basic-button"
-                              aria-controls={open ? 'basic-menu' : undefined}
-                              aria-haspopup="true"
-                              aria-expanded={open ? 'true' : undefined}
-                              onClick={(event) => {
-                                handleClick(event);
-                              }}
-                              sx={{ height: '20px' }}
-                            >
-                              <Iconify icon="eva:more-vertical-fill" />
-                            </IconButton>
-
-                            <Menu
-                              id="basic-menu"
-                              anchorEl={anchorEl}
-                              open={open}
-                              onClose={handleClose}
-                              MenuListProps={{
-                                'aria-labelledby': 'basic-button',
-                              }}
-                            >
-                              <Button
-                                onClick={() => {
-                                  setRaw(item.Raw);
-                                  handleOpenDialog();
-                                }}
-                                startIcon={<Iconify icon="ri:checkbox-circle-fill" />}
-                                sx={{ margin: '10px' }}
-                              >
-                                Whitelist
-                              </Button>
-                            </Menu>
-                          </Box>
-                        </Grid>
-                        {Object.entries(value).map(([nestedKey, nestedValue]) => (
-                          <Grid key={nestedKey}>
-                            {nestedValue && typeof nestedValue === 'object' ? (
-                              <Grid>
-                                <Typography variant="subtitle2" color="textSecondary">
-                                  {nestedKey}:
-                                </Typography>
-                                {Object.entries(nestedValue).map(([innerKey, innerValue]) => (
-                                  <Grid key={innerKey}>
-                                    {innerValue && typeof innerValue === 'object' ? (
-                                      <Grid>
-                                        <Typography variant="body2" component="div">
-                                          {Object.entries(innerValue).map(([subKey, subValue]) => (
-                                            <div key={subKey}>
-                                              {subKey}: {subValue}
-                                            </div>
-                                          ))}
-                                        </Typography>
-                                      </Grid>
-                                    ) : (
-                                      <Grid key={nestedKey}>{renderNestedValue1(key, value)}</Grid>
-                                    )}
-                                  </Grid>
-                                ))}
-                              </Grid>
-                            ) : (
-                              <Grid key={key}>{renderNestedValue(nestedKey, nestedValue)}</Grid>
-                            )}
-                          </Grid>
-                        ))}
-                      </Grid>
-                    ) : (
-                      <Grid key={key}>{renderValue(key, value)}</Grid>
-                    )}
-                  </Grid>
-                ))}
-              </CardContent>
-            </Card>
+        {loading ? (
+          <Grid container>
+            {' '}
+            <CircularProgress />{' '}
           </Grid>
-        ))}
+        ) : (
+          <>
+            <Typography variant="h6">ScanFile Data:</Typography>
+            {fechedData.map((item, index) => (
+              <Grid sx={{ display: 'flex' }}>
+                <FormGroup sx={{ mt: 5 }}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        value={item.Raw}
+                        onChange={(event) => {
+                          setRepoName('');
+                          handleCheckboxChange(event);
+                        }}
+                      />
+                    }
+                  />
+                </FormGroup>
+                <Card sx={{ mt: 4 }} key={index}>
+                  <CardContent>
+                    {Object.entries(item).map(([key, value]) => (
+                      <Grid key={key}>
+                        {value && typeof value === 'object' ? (
+                          <Grid>
+                            <Grid container display="flex" justifyContent="space-between">
+                              <Typography variant="subtitle1" color="primary" paragraph>
+                                {key}:
+                              </Typography>
+                              <Box>
+                                <IconButton
+                                  id="basic-button"
+                                  aria-controls={open ? 'basic-menu' : undefined}
+                                  aria-haspopup="true"
+                                  aria-expanded={open ? 'true' : undefined}
+                                  onClick={(event) => {
+                                    handleClick(event);
+                                  }}
+                                  sx={{ height: '20px' }}
+                                >
+                                  <Iconify icon="eva:more-vertical-fill" />
+                                </IconButton>
+
+                                <Menu
+                                  id="basic-menu"
+                                  anchorEl={anchorEl}
+                                  open={open}
+                                  onClose={handleClose}
+                                  MenuListProps={{
+                                    'aria-labelledby': 'basic-button',
+                                  }}
+                                >
+                                  <Button
+                                    onClick={() => {
+                                      setRaw(item.Raw);
+                                      handleOpenDialog();
+                                    }}
+                                    startIcon={<Iconify icon="ri:checkbox-circle-fill" />}
+                                    sx={{ margin: '10px' }}
+                                  >
+                                    Whitelist
+                                  </Button>
+                                </Menu>
+                              </Box>
+                            </Grid>
+                            {Object.entries(value).map(([nestedKey, nestedValue]) => (
+                              <Grid key={nestedKey}>
+                                {nestedValue && typeof nestedValue === 'object' ? (
+                                  <Grid>
+                                    <Typography variant="subtitle2" color="textSecondary">
+                                      {nestedKey}:
+                                    </Typography>
+                                    {Object.entries(nestedValue).map(([innerKey, innerValue]) => (
+                                      <Grid key={innerKey}>
+                                        {innerValue && typeof innerValue === 'object' ? (
+                                          <Grid>
+                                            <Typography variant="body2" component="div">
+                                              {Object.entries(innerValue).map(
+                                                ([subKey, subValue]) => (
+                                                  <div key={subKey}>
+                                                    {subKey}: {subValue}
+                                                  </div>
+                                                )
+                                              )}
+                                            </Typography>
+                                          </Grid>
+                                        ) : (
+                                          <Grid key={nestedKey}>
+                                            {renderNestedValue1(key, value)}
+                                          </Grid>
+                                        )}
+                                      </Grid>
+                                    ))}
+                                  </Grid>
+                                ) : (
+                                  <Grid key={key}>{renderNestedValue(nestedKey, nestedValue)}</Grid>
+                                )}
+                              </Grid>
+                            ))}
+                          </Grid>
+                        ) : (
+                          <Grid key={key}>{renderValue(key, value)}</Grid>
+                        )}
+                      </Grid>
+                    ))}
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </>
+        )}
       </Grid>
     </Grid>
   );

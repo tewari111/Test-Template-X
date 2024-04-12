@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 
 // import Card from '@mui/material/Card';
 // import { Grid } from '@mui/material';
+import { Grid } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
@@ -11,14 +12,12 @@ import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 import CircularProgress from '@mui/material/CircularProgress';
-import { Grid, Dialog, DialogTitle, DialogActions } from '@mui/material';
 
 // import { users } from 'src/_mock/user';
-
-import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 
 // import FormView from '../form-popover';
+import ScanOrg from './ScanOrg';
 import TableNoData from '../table-no-data';
 import UserTableRow from '../user-table-row';
 import UserTableHead from '../user-table-head';
@@ -30,7 +29,7 @@ import { emptyRows, applyFilter, getComparator } from '../utils';
 
 export default function UserPage() {
   const [page, setPage] = useState(0);
-  const [sort, setSort] = useState(true);
+  const [sort, setSort] = useState(false);
   const [order, setOrder] = useState('asc');
 
   const [selected, setSelected] = useState([]);
@@ -42,9 +41,7 @@ export default function UserPage() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(0);
-  const [fullOrgScan, setFullOrgScan] = useState();
 
-  const [open, setOpen] = useState(false);
   // const [formData, setFormData] = useState({
   //   url: '',
   //   date: '',
@@ -93,34 +90,7 @@ export default function UserPage() {
     }
   };
 
-  // console.log(scanData);
-  console.log(fullOrgScan);
-
-  const fetchScanOrg = async () => {
-    try {
-      const res = await fetch(process.env.scanOrg, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      if (res.ok) {
-        // console.log('ressssssss: ', res);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   const totalReposPercent = (scanData.length / totalRepos.totalRepos) * 100 || 0;
-
-  const handleOpen = () => {
-    setOpen(true);
-  };
-  const handleClose = () => {
-    fetchScanOrg();
-    setOpen(false);
-  };
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
@@ -193,19 +163,12 @@ export default function UserPage() {
         return response;
       })
       .then((data) => {
-        setSort(true);
-        if (sort) {
-          const repos = data.repositories;
-          repos.sort((a, b) => a.secrets.length - b.secrets.length);
-          setScanData(repos);
-          // console.log('repost after sort: ', repos);
-        } else {
-          setScanData(data.repositories);
-        }
+        setScanData(data.repositories);
       })
       .catch((error) => console.error(error));
   };
 
+  console.log('sort..........', sort);
   // users data change with api data
   const dataFiltered = applyFilter({
     inputData: scanData,
@@ -215,47 +178,22 @@ export default function UserPage() {
 
   const notFound = !dataFiltered.length && !!filterName;
 
+  if (sort) {
+    scanData.sort((a, b) => b.secrets.length - a.secrets.length);
+  } else {
+    scanData.sort((a, b) => a.secrets.length - b.secrets.length);
+  }
   return (
     <Container>
       <Stack direction="row" justifyContent="space-between" mb={6}>
         <Typography variant="h4">Repositories</Typography>
 
-        <Dialog open={!!open} onClose={handleClose}>
-          <DialogTitle>Start ScanOrg for fethc api</DialogTitle>
-          <DialogActions>
-            <Button
-              onClick={() => {
-                setFullOrgScan(true);
-                handleClose();
-              }}
-              sx={{ color: 'green' }}
-            >
-              Scan New Repos only
-            </Button>
-            <Button
-              onClick={() => {
-                setFullOrgScan(false);
-                handleClose();
-              }}
-              sx={{ color: '#FF474C' }}
-            >
-              Entire Org Again
-            </Button>
-          </DialogActions>
-        </Dialog>
-        <div>
+        <Grid display="flex">
           <Button variant="contained" sx={{ mr: 1 }}>
             {totalReposPercent.toFixed(0)}%
           </Button>
-          <Button
-            variant="contained"
-            color="inherit"
-            startIcon={<Iconify icon="eva:plus-fill" />}
-            onClick={handleOpen}
-          >
-            Start Org Scan
-          </Button>
-        </div>
+          <ScanOrg />
+        </Grid>
       </Stack>
 
       {/* <Card> */}
@@ -280,6 +218,8 @@ export default function UserPage() {
               onSelectAllClick={handleSelectAllClick}
               onAscSort={sortDataAsc}
               onDescSort={sortDataDesc}
+              sort={sort}
+              setSort={setSort}
               headLabel={[
                 { id: 'name', label: 'Repository Name', sortable: true },
                 { id: 'secrets', label: 'Total Secrets' },

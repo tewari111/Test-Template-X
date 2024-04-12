@@ -27,6 +27,7 @@ export default defineConfig({
   },
   define: {
     'process.env': {
+      baseUrl: baseUrl,
       scanOrg: `${baseUrl}/scanOrg`,
       settings: `${baseUrl}/settings`,
       getOrgScan: `${baseUrl}/getOrgScan`,

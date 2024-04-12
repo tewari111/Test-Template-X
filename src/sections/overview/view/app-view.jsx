@@ -1,162 +1,108 @@
 import { useState, useEffect } from 'react';
-// import { faker } from '@faker-js/faker';
-// import React, {  useState,useEffect, } from 'react';
 
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
+import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import { LineChart } from '@mui/x-charts/LineChart';
-import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
 
-import Iconify from 'src/components/iconify';
+import ScanOrg from 'src/sections/user/view/ScanOrg';
 
-// import FormView from 'src/sections/overview/form-popover';
-
-// import AppTasks from '../app-tasks';
-// import AppNewsUpdate from '../app-news-update';
-// import AppOrderTimeline from '../app-order-timeline';
 import AppCurrentVisits from '../app-current-visits';
-// import AppWebsiteVisits from '../app-website-visits';
 import AppWidgetSummary from '../app-widget-summary';
-// import AppTrafficBySite from '../app-traffic-by-site';
-// import AppCurrentSubject from '../app-current-subject';
-// import AppConversionRates from '../app-conversion-rates';
-
-// ----------------------------------------------------------------------
 
 export default function AppView() {
-  // const [messages, setMessages] = useState([]);
-  const [open, setOpen] = useState(false);
-  const [scanData, setScanData] = useState([]);
-  const [totalRepos, setTotalRepos] = useState([]);
-  const [getStorageData, setGetStorageData] = useState([]);
+  const [dashData, setDashData] = useState([]);
+  const [dateAndTime, setDateAndeTime] = useState([]);
+  const [dataLength, setDataLength] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchTotlaRepos();
-    fetchScanData();
+    const fetchData = async () => {
+      try {
+        const res = await fetch(`${process.env.baseUrl}/getDash?start_index=0&end_index=10`);
 
-    const storedData = JSON.parse(localStorage.getItem('postRequestMessages'));
-    if (storedData) {
-      setGetStorageData(storedData);
-    }
+        if (res.ok) {
+          const data = await res.json();
+          setDashData(data.data);
+          setDateAndeTime(
+            data.data.map(
+              (item) =>
+                `${item.collection_name.slice(0, 4)}/${item.collection_name.slice(
+                  4,
+                  6
+                )}/${item.collection_name.slice(6, 8)} ${item.collection_name.slice(
+                  9,
+                  11
+                )}:${item.collection_name.slice(11, 13)}:${item.collection_name.slice(13)}`
+            )
+          );
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
-  // console.log(responseData);
-  // console.log(scanData);
-  // console.log(getStorageData);
+  useEffect(() => {}, [dataLength]);
 
-  const fetchScanData = async () => {
-    try {
-      const response = await fetch('http://65.1.132.241:8000/getOrgScan');
-      if (response.ok) {
-        const jsonData = await response.json();
-        setScanData(jsonData.repositories);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  useEffect(() => {
+    const newDataLength = dashData.map((item) => Object.keys(item.data).length);
+    setDataLength(newDataLength.reverse());
+  }, [dashData]);
 
-  const fetchScanOrg = async () => {
-    try {
-      await fetch('http://65.1.132.241:8000/scanOrg');
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const fetchTotlaRepos = async () => {
-    try {
-      const response = await fetch('http://65.1.132.241:8000/settings');
-      if (response.ok) {
-        const jsonData = await response.json();
-        setTotalRepos(jsonData);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  console.log('dataLength', dataLength);
 
   let totalSecrets = 0;
-  try {
-    scanData.forEach((repo) => {
-      totalSecrets += repo.secrets.length;
+  const totalRepos = [];
+
+  let totalS = [];
+  if (dashData.length) {
+    totalS = dashData[0].data;
+    Object.entries(totalS).forEach(([key, value]) => {
+      totalRepos.push(value); // finding totalRepos
+      totalSecrets += value;
     });
-  } catch (error) {
-    console.error(error);
   }
 
-  const secretRatio = totalSecrets / totalRepos.totalRepos;
+  const totalRepo = totalRepos.length;
+  const secretRatio = totalSecrets / totalRepo;
+  const totalReposPercent = (totalRepo / totalRepo) * 100;
 
-  const totalReposPercent = (totalRepos.totalRepos / totalRepos.totalRepos) * 100 || 0;
+  const pieChartData = [];
+  Object.entries(totalS).map(([key, value]) =>
+    pieChartData.push({ label: key, value: Math.ceil((value / totalSecrets) * 100) })
+  );
 
-  const pieChartData = scanData.map((item, index) => ({
-    label: item.repository,
-    value: (item.secrets.length / totalSecrets) * 100,
-  }));
+  const dividedArray = dataLength.map((value) => totalSecrets / value);
 
-  // console.log('pie chart', pieChartData);
+  console.log('dividedArray.......', dividedArray);
+  console.log('xDATa............', dateAndTime);
+  const newArr = [];
 
-  // const data = [4000, 3000, 2000, null, 1890, 2390, 3490];
-  // const xData = ['Page A', 'Page B', 'Page C', 'Page D', 'Page E', 'Page F', 'Page G'];
+  for (let i = 0; i < dateAndTime.length; ) {
+    const year = parseInt(dateAndTime[i].substr(0, 4), 10);
+    const month = parseInt(dateAndTime[i].substr(4, 2), 10);
+    const day = parseInt(dateAndTime[i].substr(6, 2), 10);
+    const hours = parseInt(dateAndTime[i].substr(9, 2), 10);
+    const minutes = parseInt(dateAndTime[i].substr(11, 2), 10);
+    const seconds = parseInt(dateAndTime[i].substr(13, 2), 10);
+    const dateTimeObject = new Date(year, month, day, hours, minutes, seconds);
+    newArr.push(dateTimeObject);
+    i += 1;
+  }
 
-  const yData = [];
-  const dates = getStorageData.map((item, i) => {
-    const dateString = item.split('Org scan started!: ')[1]; // Extract the portion after the colon and space
-    const date = dateString;
-    if (i === 0) {
-      yData.push(i);
-    } else {
-      yData.push(secretRatio);
-    }
+  console.log('new Arr', newArr);
 
-    return date;
-  });
-
-  const data = yData;
-  const xData = dates;
-
-  console.log(dates);
-  const handleOpen = async () => {
-    fetchScanOrg();
-    setOpen(true);
-    const currentTime = new Date().toLocaleTimeString();
-    const currentDate = new Date().toLocaleDateString();
-    const newMessageEntry = `Org scan started!: ${currentDate} ${currentTime}`;
-
-    // Retrieve the existing messages array from localStorage
-    const storedMessages = localStorage.getItem('postRequestMessages');
-    const messages = storedMessages ? JSON.parse(storedMessages) : [];
-
-    const updatedMessages = [...messages, newMessageEntry];
-    localStorage.setItem('postRequestMessages', JSON.stringify(updatedMessages));
-    try {
-      await fetch('http://65.1.132.241:8000/scanOrg');
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  // const handleInputChange = (e) => {
-  //   const { url, value } = e.target;
-
-  //   setFormData({
-  //     ...formData,
-  //     [url]: value,
-  //   });
-  // };
-
-  // const handleSubmit = () => {
-  //   // Handle form submission here, e.g., send data to backend
-  //   console.log(formData);
-  //   handleClose();
-  // };
+  const data = dividedArray;
+  // const xData = [2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024];
+  const xData = dateAndTime;
 
   return (
     <Container maxWidth="xl">
@@ -168,66 +114,52 @@ export default function AppView() {
         <Typography variant="h4" sx={{ mb: 5 }}>
           Hi, Welcome back 👋
         </Typography>
-
-        <Dialog open={!!open} onClose={handleClose}>
-          <DialogTitle>Start ScanOrg for fethc api</DialogTitle>
-          <DialogContent>
-            <Typography variant="body1">Started!</Typography>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose} color="primary">
-              Close
-            </Button>
-          </DialogActions>
-        </Dialog>
-        <div>
+        <Grid display="flex">
           <Button variant="contained" sx={{ mr: 1 }}>
             {totalReposPercent.toFixed(0)}%
           </Button>
-          <Button
-            variant="contained"
-            color="inherit"
-            startIcon={<Iconify icon="eva:plus-fill" />}
-            onClick={handleOpen}
-          >
-            Start Org Scan
-          </Button>
-        </div>
+          <ScanOrg />
+        </Grid>
       </Stack>
 
       {/* @TODO change the logo */}
-      <Grid container spacing={3}>
-        <Grid xs={12} sm={6} md={3}>
-          <AppWidgetSummary
-            title="Total Secrets"
-            total={totalSecrets}
-            color="error"
-            icon={<img alt="icon" src="/assets/icons/glass/ic_glass_bag.png" />}
-          />
+      {loading ? (
+        <Grid container justifyContent="center" mt={10} mr={5}>
+          <CircularProgress />
         </Grid>
+      ) : (
+        <Grid container spacing={3}>
+          <Grid xs={12} sm={6} md={3}>
+            <AppWidgetSummary
+              title="Total Secrets"
+              total={totalSecrets}
+              color="error"
+              icon={<img alt="icon" src="/assets/icons/glass/ic_glass_bag.png" />}
+            />
+          </Grid>
 
-        {/* @TODO change the logo */}
-        <Grid xs={12} sm={6} md={3}>
-          <AppWidgetSummary
-            title="Total Repos"
-            total={scanData.length}
-            color="info"
-            icon={<img alt="icon" src="/assets/icons/glass/ic_glass_users.png" />}
-          />
-        </Grid>
-        {/* @TODO change the logo */}
+          {/* @TODO change the logo */}
+          <Grid xs={12} sm={6} md={3}>
+            <AppWidgetSummary
+              title="Total Repos"
+              total={totalRepos.length}
+              color="info"
+              icon={<img alt="icon" src="/assets/icons/glass/ic_glass_users.png" />}
+            />
+          </Grid>
+          {/* @TODO change the logo */}
 
-        <Grid xs={12} sm={6} md={3}>
-          <AppWidgetSummary
-            title="Secrets ratio/repo"
-            total={secretRatio || '0'} // (total repos/totalsecrets)*100
-            color="warning"
-            icon={<img alt="icon" src="/assets/icons/glass/ic_glass_buy.png" />}
-          />
-        </Grid>
-        {/* @TODO change the logo */}
+          <Grid xs={12} sm={6} md={3}>
+            <AppWidgetSummary
+              title="Secrets ratio/repo"
+              total={secretRatio} // (total repos/totalsecrets)*100
+              color="warning"
+              icon={<img alt="icon" src="/assets/icons/glass/ic_glass_buy.png" />}
+            />
+          </Grid>
+          {/* @TODO change the logo */}
 
-        {/* <Grid xs={12} sm={6} md={3}>
+          {/* <Grid xs={12} sm={6} md={3}>
           <AppWidgetSummary
             title="Repo_3_name"
             total={234}
@@ -235,25 +167,26 @@ export default function AppView() {
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_message.png" />}
           />
         </Grid> */}
-        {/* @TODO change the logo */}
-        <Grid xs={12} md={6} lg={8} mt={1.5} bgcolor="white" borderRadius="15px" height="78vh">
-          <LineChart
-            xAxis={[{ data: xData, scaleType: 'point' }]}
-            series={[{ data, connectNulls: true }]}
-            height={350}
-            margin={{ top: 30, bottom: 20 }}
-          />
-        </Grid>
+          {/* @TODO change the logo */}
+          <Grid xs={12} md={6} lg={8} mt={1.5} bgcolor="white" borderRadius="15px" height="78vh">
+            <LineChart
+              xAxis={[{ data: xData, scaleType: 'point' }]}
+              series={[{ data, connectNulls: true }]}
+              height={350}
+              margin={{ top: 30, bottom: 20 }}
+            />
+          </Grid>
 
-        <Grid xs={12} md={6} lg={4}>
-          <AppCurrentVisits
-            title="Repos Ratio"
-            chart={{
-              series: pieChartData,
-            }}
-          />
+          <Grid xs={12} md={6} lg={4}>
+            <AppCurrentVisits
+              title="Repos Ratio"
+              chart={{
+                series: pieChartData,
+              }}
+            />
+          </Grid>
         </Grid>
-      </Grid>
+      )}
     </Container>
   );
 }
