@@ -83,26 +83,47 @@ export default function AppView() {
   const dividedArray = dataLength.map((value) => totalSecrets / value);
 
   console.log('dividedArray.......', dividedArray);
-  console.log('xDATa............', dateAndTime);
-  const newArr = [];
+  console.log('dateAndTime............', dateAndTime);
 
-  for (let i = 0; i < dateAndTime.length; ) {
-    const year = parseInt(dateAndTime[i].substr(0, 4), 10);
-    const month = parseInt(dateAndTime[i].substr(4, 2), 10);
-    const day = parseInt(dateAndTime[i].substr(6, 2), 10);
-    const hours = parseInt(dateAndTime[i].substr(9, 2), 10);
-    const minutes = parseInt(dateAndTime[i].substr(11, 2), 10);
-    const seconds = parseInt(dateAndTime[i].substr(13, 2), 10);
-    const dateTimeObject = new Date(year, month, day, hours, minutes, seconds);
-    newArr.push(dateTimeObject);
-    i += 1;
-  }
+  const convertedArray = dateAndTime.map((dateTime) => {
+    const [date, time] = dateTime.split(' ');
+    const [year, month, day] = date.split('/').map((part) => parseInt(part, 10));
+    const [hours, minutes, seconds] = time.split(':').map((part) => parseInt(part, 10));
+    return [year, month, day, hours, minutes, seconds];
+  });
 
-  console.log('new Arr', newArr);
+  console.log('convertedArray', convertedArray);
+
+  // const formattedDates = convertedDates.map((date) => {
+  //   const formattedDate = date.toLocaleString('en-US', {
+  //     year: 'numeric',
+  //     month: '2-digit',
+  //     day: '2-digit',
+  //     hour: '2-digit',
+  //     minute: '2-digit',
+  //     second: '2-digit',
+  //     hour12: false,
+  //   });
+
+  //   return new Date(formattedDate);
+  // });
+
+  // const timesArray = formattedDates.map((date) => {
+  //   const hours = date.getHours();
+  //   const minutes = date.getMinutes();
+  //   const seconds = date.getSeconds();
+  //   return [hours, minutes, seconds];
+  // });
+
+  // console.log('timesArray', timesArray);
+
+  // console.log('timesArray', timesArray);
+
+  // console.log('timesArray', timesArray);
 
   const data = dividedArray;
   // const xData = [2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024];
-  const xData = dateAndTime;
+  const xData = convertedArray;
 
   return (
     <Container maxWidth="xl">
