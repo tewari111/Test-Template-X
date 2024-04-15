@@ -57,9 +57,6 @@ export default function NotificationsPopover() {
     return formatDistanceToNow(date, { addSuffix: true });
   }
 
-  if (errors) {
-    return <Typography color="red">{errors}</Typography>;
-  }
   return (
     <>
       <IconButton color={open ? 'primary' : 'default'} onClick={handleOpen}>

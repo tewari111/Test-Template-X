@@ -9,15 +9,27 @@ import TableHead from '@mui/material/TableHead';
 import ToggleButton from '@mui/material/ToggleButton';
 import TableContainer from '@mui/material/TableContainer';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import { Grid, Button, Popover, MenuItem, IconButton, Typography } from '@mui/material';
+import {
+  Grid,
+  Button,
+  Popover,
+  MenuItem,
+  IconButton,
+  Typography,
+  CircularProgress,
+} from '@mui/material';
 
 import Iconify from 'src/components/iconify';
+
+import ErrorPage from 'src/sections/error/ErrorPage';
 
 export default function WhitelistSecrets() {
   const [alignment, setAlignment] = useState('reposcope');
   const [fetchedData, setFetchedData] = useState([]);
   const [open, setOpen] = useState(null);
   const [secretKey, setSecretKey] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [errors, setErrors] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,7 +42,9 @@ export default function WhitelistSecrets() {
           console.error('Error occurred while fetching data');
         }
       } catch (error) {
-        console.error(error);
+        setErrors('Field to fetch whitelist. Please tray again later.');
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
@@ -55,7 +69,7 @@ export default function WhitelistSecrets() {
         return response;
       })
       .then((data) => console.log(data))
-      .catch((error) => console.error(error));
+      .catch((error) => setErrors('Field to remove whitelist. Please try again.'));
   };
 
   const handleChange = (event, newAlignment) => {
@@ -80,9 +94,13 @@ export default function WhitelistSecrets() {
     mappedData = [];
   }
 
+  if (errors) {
+    return <ErrorPage errorMessage={errors} />;
+  }
   return (
     <Grid container sx={{ margin: '0px auto', ml: { xs: 15 }, width: { lg: '85%' } }}>
       <Typography variant="h4">Whitelist Secrets</Typography>
+
       <Grid item lg={12} xs={12} textAlign="start" mb={4} mt={5}>
         <ToggleButtonGroup
           color="primary"
@@ -123,25 +141,31 @@ export default function WhitelistSecrets() {
                 <TableCell>Action</TableCell>
               </TableRow>
             </TableHead>
-            <TableBody>
-              {mappedData.map((item, i) => (
-                <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }} key={i}>
-                  <TableCell>{item.Secret}</TableCell>
-                  <TableCell>{String(item.OrgScope)}</TableCell>
-                  <TableCell>{item.Repository}</TableCell>
-                  <TableCell align="right">
-                    <IconButton
-                      onClick={(event) => {
-                        handleOpenMenu(event);
-                        setSecretKey(item.Secret);
-                      }}
-                    >
-                      <Iconify icon="eva:more-vertical-fill" />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
+            {loading ? (
+              <Grid item xs={12} lg={12} margin="100px" ml={30}>
+                <CircularProgress />
+              </Grid>
+            ) : (
+              <TableBody>
+                {mappedData.map((item, i) => (
+                  <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }} key={i}>
+                    <TableCell>{item.Secret}</TableCell>
+                    <TableCell>{String(item.OrgScope)}</TableCell>
+                    <TableCell>{item.Repository}</TableCell>
+                    <TableCell align="right">
+                      <IconButton
+                        onClick={(event) => {
+                          handleOpenMenu(event);
+                          setSecretKey(item.Secret);
+                        }}
+                      >
+                        <Iconify icon="eva:more-vertical-fill" />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            )}
           </Table>
         </TableContainer>
       </Grid>

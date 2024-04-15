@@ -22,6 +22,8 @@ import {
 
 import Iconify from 'src/components/iconify/iconify';
 
+import ErrorPage from 'src/sections/error/ErrorPage';
+
 function FetchScanFile() {
   const [fechedData, setFetchedData] = useState([]);
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -31,6 +33,7 @@ function FetchScanFile() {
   const [checkboxData, setCheckboxData] = useState([]);
   const [visibility, setVisibility] = useState('hidden');
   const [loading, setLoading] = useState(true);
+  const [errors, setErrors] = useState(null);
 
   const [raw, setRaw] = useState('');
   const location = useLocation();
@@ -64,8 +67,7 @@ function FetchScanFile() {
         const parsedData = yaml.parse(responseData);
         setFetchedData(parsedData);
       } catch (error) {
-        console.error(error);
-        // Handle the error appropriately (e.g., show an error message to the user)
+        setErrors('Field to fetch scan file. please try again.');
       } finally {
         setLoading(false);
       }
@@ -124,7 +126,7 @@ function FetchScanFile() {
         console.error('Error setting whitelist secrets:', response.status, response.statusText);
       }
     } catch (error) {
-      console.error('Error setting whitelist secrets:', error);
+      setErrors('Field to submit it. please try again.');
     }
   };
 
@@ -139,6 +141,8 @@ function FetchScanFile() {
     }
     return `${nestedKey}: ${content}`;
   }
+
+  console.log('fechedData........', fechedData[0]);
 
   function renderNestedValue(nestedKey, nestedValue) {
     let content;
@@ -168,6 +172,19 @@ function FetchScanFile() {
     return (
       <Grid>
         {key}: {content}
+      </Grid>
+    );
+  }
+
+  if (errors) {
+    return <ErrorPage errorMessage={errors} />;
+  }
+
+  if (loading) {
+    return (
+      <Grid item xs={6} lg={6} mt={20} display="flex" justifyContent="center">
+        {' '}
+        <CircularProgress />{' '}
       </Grid>
     );
   }
@@ -239,15 +256,13 @@ function FetchScanFile() {
           </Button>
         </DialogActions>
       </Dialog>
+
       <Grid item lg={12}>
-        {loading ? (
-          <Grid container>
-            {' '}
-            <CircularProgress />{' '}
-          </Grid>
+        <Typography variant="h6">ScanFile Data:</Typography>
+        {fechedData[0] === 'File not found' ? (
+          <Typography mt={10}>Ther is no data.</Typography>
         ) : (
           <>
-            <Typography variant="h6">ScanFile Data:</Typography>
             {fechedData.map((item, index) => (
               <Grid sx={{ display: 'flex' }}>
                 <FormGroup sx={{ mt: 5 }}>

@@ -2,28 +2,28 @@ import { useState, useEffect } from 'react';
 
 // import Card from '@mui/material/Card';
 // import { Grid } from '@mui/material';
-import { Grid } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
+import { Grid, Pagination } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
-import TablePagination from '@mui/material/TablePagination';
+// import TablePagination from '@mui/material/TablePagination';
 import CircularProgress from '@mui/material/CircularProgress';
 
 // import { users } from 'src/_mock/user';
 import Scrollbar from 'src/components/scrollbar';
 
-// import FormView from '../form-popover';
+import ErrorPage from 'src/sections/error/ErrorPage';
+
 import ScanOrg from './ScanOrg';
 import TableNoData from '../table-no-data';
 import UserTableRow from '../user-table-row';
 import UserTableHead from '../user-table-head';
-import TableEmptyRows from '../table-empty-rows';
 import UserTableToolbar from '../user-table-toolbar';
-import { emptyRows, applyFilter, getComparator } from '../utils';
+import { applyFilter, getComparator } from '../utils';
 
 // ----------------------------------------------------------------------
 
@@ -31,9 +31,8 @@ export default function UserPage() {
   const [page, setPage] = useState(0);
   const [sort, setSort] = useState(false);
   const [order, setOrder] = useState('asc');
-
   const [selected, setSelected] = useState([]);
-
+  const [errors, setErrors] = useState(null);
   const [orderBy, setOrderBy] = useState('name');
 
   const [filterName, setFilterName] = useState('');
@@ -44,7 +43,7 @@ export default function UserPage() {
 
   // const [formData, setFormData] = useState({
   //   url: '',
-  //   date: '',
+  //   date: '',y
   // });
 
   const [scanData, setScanData] = useState([]);
@@ -68,7 +67,7 @@ export default function UserPage() {
           setScanData(data.repositories);
         }
       } catch (error) {
-        console.error(error);
+        setErrors('Failed to fetch scan data. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -86,7 +85,7 @@ export default function UserPage() {
         setTotalRepos(data);
       }
     } catch (error) {
-      console.error(error);
+      setErrors('Failed to fetch totalRepos data. Please try again later.');
     }
   };
 
@@ -143,8 +142,9 @@ export default function UserPage() {
   };
 
   const handleChangeRowsPerPage = (event) => {
+    const newRowsPerPage = parseInt(event.target.value, 10);
+    setRowsPerPage(newRowsPerPage);
     setPage(0);
-    setRowsPerPage(parseInt(event.target.value, 10));
   };
 
   const handleFilterByName = (event) => {
@@ -163,9 +163,9 @@ export default function UserPage() {
         return response;
       })
       .then((data) => {
-        setScanData(data.repositories);
+        setErrors('Failed to fetch scan data. Please try again later.');
       })
-      .catch((error) => console.error(error));
+      .catch((error) => setErrors(error.message));
   };
 
   console.log('sort..........', sort);
@@ -182,6 +182,10 @@ export default function UserPage() {
     scanData.sort((a, b) => b.secrets.length - a.secrets.length);
   } else {
     scanData.sort((a, b) => a.secrets.length - b.secrets.length);
+  }
+
+  if (errors) {
+    return <ErrorPage errorMessage={errors} />;
   }
   return (
     <Container>
@@ -235,46 +239,38 @@ export default function UserPage() {
               </Grid>
             ) : (
               <TableBody>
-                {dataFiltered
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((row, i) => (
-                    <UserTableRow
-                      key={i}
-                      id={i}
-                      name={row.repository}
-                      show="Show secrets"
-                      startIndex={startIndex}
-                      endIndex={endIndex}
-                      status={i}
-                      secrets={row.secrets.length}
-                      // avatarUrl={row.avatarUrl}
-                      commits={row.totalNoCommits}
-                      selected={selected.indexOf(row.repository) !== -1}
-                      handleClick={(event) => handleClick(event, row.repository)}
-                    />
-                  ))}
+                {dataFiltered.map((row, i) => (
+                  <UserTableRow
+                    key={i}
+                    id={i}
+                    name={row.repository}
+                    show="Show secrets"
+                    startIndex={startIndex}
+                    endIndex={endIndex}
+                    status={i}
+                    secrets={row.secrets.length}
+                    // avatarUrl={row.avatarUrl}
+                    commits={row.totalNoCommits}
+                    selected={selected.indexOf(row.repository) !== -1}
+                    handleClick={(event) => handleClick(event, row.repository)}
+                  />
+                ))}
 
-                {/* user data */}
-                <TableEmptyRows
-                  height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, scanData.length)}
-                />
                 {notFound && <TableNoData query={filterName} />}
               </TableBody>
             )}
           </Table>
+          <Pagination
+            sx={{ mt: 2 }}
+            page={page + 1}
+            count={totalPages}
+            rowsPerPage={rowsPerPage}
+            onChange={(event, newPage) => handleChangePage(event, newPage - 1)}
+            onRowsPerPageChange={(event) => handleChangeRowsPerPage(event.target.value)}
+          />
         </TableContainer>
       </Scrollbar>
 
-      <TablePagination
-        page={page}
-        component="div"
-        count={totalPages}
-        rowsPerPage={rowsPerPage}
-        onPageChange={handleChangePage}
-        rowsPerPageOptions={[5, 10, 25]}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
       {/* </Card> */}
     </Container>
   );

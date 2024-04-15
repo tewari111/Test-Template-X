@@ -16,16 +16,21 @@ import {
   FormControl,
   DialogActions,
   DialogContent,
+  CircularProgress,
 } from '@mui/material';
+
+import ErrorPage from 'src/sections/error/ErrorPage';
 
 import EditPrScan from './EditPrScan';
 
 function PrScanSecret() {
   const [openDialog, setOpenDialog] = useState(false);
   const [fechedData, setFetchedData] = useState([]);
-  const [webHookData, setWebHookData] = useState([]);
+  // const [webHookData, setWebHookData] = useState([]);
   const [options, setOptions] = useState([]);
   const [inputValue, setInputValue] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [errors, setErrors] = useState(null);
 
   const [formData, setFormData] = useState({
     git: '',
@@ -36,22 +41,24 @@ function PrScanSecret() {
     targetRepos: [],
   });
 
-  useEffect(() => {
-    const webHookConfig = async () => {
-      try {
-        const response = await fetch(process.env.webhookConfig);
-        if (response.ok) {
-          const responseData = await response.json();
-          console.log(response);
-          setWebHookData(responseData);
-        }
-      } catch (error) {
-        console.error(error);
-        // Handle the error appropriately (e.g., show an error message to the user)
-      }
-    };
-    webHookConfig();
-  }, []);
+  // useEffect(() => {
+  //   const webHookConfig = async () => {
+  //     try {
+  //       const response = await fetch(process.env.webhookConfig);
+  //       if (response.ok) {
+  //         const responseData = await response.json();
+  //         console.log(response);
+  //         setWebHookData(responseData);
+  //       }
+  //     } catch (error) {
+  //       setErrors('Field to fetch webhookConfig. Please try again later.');
+  //       // Handle the error appropriately (e.g., show an error message to the user)
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  //   webHookConfig();
+  // }, []);
 
   useEffect(() => {
     const fetchPrScanSecret = async () => {
@@ -62,22 +69,22 @@ function PrScanSecret() {
           const res = responseData.scanData;
           res.sort((a, b) => new Date(b.date_of_scan) - new Date(a.date_of_scan));
           setFetchedData(res);
+
+          if (res.git && res.scanType && res.PRcomment) {
+            handleOpenDialog();
+          } else {
+            setOpenDialog(false);
+          }
         }
       } catch (error) {
-        console.error(error);
+        setErrors('Field to fetch prScanSecret. Please try again later.');
         // Handle the error appropriately (e.g., show an error message to the user)
+      } finally {
+        setLoading(false);
       }
     };
     fetchPrScanSecret();
   }, []);
-
-  useEffect(() => {
-    if (!(webHookData.git && webHookData.scanType && webHookData.PRcomment)) {
-      handleOpenDialog();
-    } else {
-      setOpenDialog(false);
-    }
-  }, [webHookData.git, webHookData.scanType, webHookData.PRcomment]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -96,7 +103,7 @@ function PrScanSecret() {
         setOpenDialog(true);
       }
     } catch (error) {
-      console.error(error);
+      setErrors('Field to submit data. Please try again later.');
     }
   };
 
@@ -137,6 +144,9 @@ function PrScanSecret() {
     setOpenDialog(false);
   };
 
+  if (errors) {
+    return <ErrorPage errorMessage={errors} />;
+  }
   return (
     <Grid container>
       <Grid>
@@ -247,67 +257,73 @@ function PrScanSecret() {
           <EditPrScan />
         </Box>
       </Grid>
-      <Grid item lg={12}>
-        {fechedData.map((item, i) => (
-          <Card
-            sx={{
-              mt: 3,
-              padding: '5px 10px',
-              bgcolor: item.scan_result ? '#BDF5BD' : '#ffcccb',
-              borderRadius: '10px',
-            }}
-            key={i}
-          >
-            <Grid container>
-              <Grid item xs={2} md={2} sx={{ display: 'flex' }}>
-                <Typography sx={{ fontWeight: 'bold' }}>PR Link</Typography>
-              </Grid>
-              <Grid item xs={9} md={9} sx={{ display: 'flex' }}>
-                <a href={item.prLink}>{item.prLink}</a>
-              </Grid>
-            </Grid>
-
-            <Grid container>
-              <Grid item xs={2} md={2} sx={{ display: 'flex' }}>
-                <Typography sx={{ fontWeight: 'bold' }}>Repo Name</Typography>
-              </Grid>
-              <Grid item xs={9} md={9} sx={{ display: 'flex' }}>
-                <Typography>{item.repoName}</Typography>
-              </Grid>
-            </Grid>
-
-            <Grid container>
-              <Grid item xs={2} md={2} sx={{ display: 'flex' }}>
-                <Typography sx={{ fontWeight: 'bold' }}>Secret No</Typography>
-              </Grid>
-              <Grid item xs={9} md={9} sx={{ display: 'flex' }}>
-                <Typography>{item.secret_no}</Typography>
-              </Grid>
-            </Grid>
-            {!item.scan_result ? (
+      {loading ? (
+        <Grid items xs={8} lg={8} mt={15} display="center" justifyContent="center">
+          <CircularProgress />
+        </Grid>
+      ) : (
+        <Grid item lg={12}>
+          {fechedData.map((item, i) => (
+            <Card
+              sx={{
+                mt: 3,
+                padding: '5px 10px',
+                bgcolor: item.scan_result ? '#BDF5BD' : '#ffcccb',
+                borderRadius: '10px',
+              }}
+              key={i}
+            >
               <Grid container>
                 <Grid item xs={2} md={2} sx={{ display: 'flex' }}>
-                  <Typography sx={{ fontWeight: 'bold' }}>Secret File</Typography>
+                  <Typography sx={{ fontWeight: 'bold' }}>PR Link</Typography>
                 </Grid>
                 <Grid item xs={9} md={9} sx={{ display: 'flex' }}>
-                  <a href="http://localhost:3030/showNewSecret?date_of_scan=2024-03-27%2009:27:47.544106">
-                    http://localhost:3030/showNewSecret?date_of_scan=2024-03-27%2009:27:47.544106
-                  </a>
+                  <a href={item.prLink}>{item.prLink}</a>
                 </Grid>
               </Grid>
-            ) : (
+
               <Grid container>
                 <Grid item xs={2} md={2} sx={{ display: 'flex' }}>
-                  <Typography sx={{ fontWeight: 'bold' }}>Date of Scan</Typography>
+                  <Typography sx={{ fontWeight: 'bold' }}>Repo Name</Typography>
                 </Grid>
                 <Grid item xs={9} md={9} sx={{ display: 'flex' }}>
-                  <Typography>{item.date_of_scan}</Typography>
+                  <Typography>{item.repoName}</Typography>
                 </Grid>
               </Grid>
-            )}
-          </Card>
-        ))}
-      </Grid>
+
+              <Grid container>
+                <Grid item xs={2} md={2} sx={{ display: 'flex' }}>
+                  <Typography sx={{ fontWeight: 'bold' }}>Secret No</Typography>
+                </Grid>
+                <Grid item xs={9} md={9} sx={{ display: 'flex' }}>
+                  <Typography>{item.secret_no}</Typography>
+                </Grid>
+              </Grid>
+              {!item.scan_result ? (
+                <Grid container>
+                  <Grid item xs={2} md={2} sx={{ display: 'flex' }}>
+                    <Typography sx={{ fontWeight: 'bold' }}>Secret File</Typography>
+                  </Grid>
+                  <Grid item xs={9} md={9} sx={{ display: 'flex' }}>
+                    <a href="http://localhost:3030/showNewSecret?date_of_scan=2024-03-27%2009:27:47.544106">
+                      go to secret file
+                    </a>
+                  </Grid>
+                </Grid>
+              ) : (
+                <Grid container>
+                  <Grid item xs={2} md={2} sx={{ display: 'flex' }}>
+                    <Typography sx={{ fontWeight: 'bold' }}>Date of Scan</Typography>
+                  </Grid>
+                  <Grid item xs={9} md={9} sx={{ display: 'flex' }}>
+                    <Typography>{item.date_of_scan}</Typography>
+                  </Grid>
+                </Grid>
+              )}
+            </Card>
+          ))}
+        </Grid>
+      )}
     </Grid>
   );
 }

@@ -6,6 +6,7 @@ import FetchScanFile from 'src/pages/FetchScanFile';
 import DashboardLayout from 'src/layouts/dashboard';
 
 import Login from 'src/sections/login/Login';
+import ErrorPage from 'src/sections/error/ErrorPage';
 import ShowSecrets from 'src/sections/user/view/ShowSecrets';
 
 import SettingPage from './components/SettingPage';
@@ -17,6 +18,7 @@ export const UserPage = lazy(() => import('src/pages/user'));
 export const LoginPage = lazy(() => import('src/pages/login'));
 export const ProductsPage = lazy(() => import('src/pages/products'));
 export const Page404 = lazy(() => import('src/pages/page-not-found'));
+
 // ----------------------------------------------------------------------
 
 export default function Router() {
@@ -41,6 +43,7 @@ export default function Router() {
           path: 'showNewSecret',
           element: <FetchScanFile />,
         },
+        { path: '/error', element: <ErrorPage /> },
         // { path: '/login', element: <Login /> },
         // { path: 'blog', element: <BlogPage /> },
       ],
