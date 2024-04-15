@@ -31,7 +31,6 @@ function PrScanSecret() {
   const [inputValue, setInputValue] = useState('');
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState(null);
-
   const [formData, setFormData] = useState({
     git: '',
     scanType: '',
@@ -305,7 +304,7 @@ function PrScanSecret() {
                     <Typography sx={{ fontWeight: 'bold' }}>Secret File</Typography>
                   </Grid>
                   <Grid item xs={9} md={9} sx={{ display: 'flex' }}>
-                    <a href="http://localhost:3030/showNewSecret?date_of_scan=2024-03-27%2009:27:47.544106">
+                    <a href={`${process.env.fetchScanFile}${item.date_of_scan}`}>
                       go to secret file
                     </a>
                   </Grid>

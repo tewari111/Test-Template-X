@@ -10,8 +10,8 @@ import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import ListItemButton from '@mui/material/ListItemButton';
-import { Box, Grid, Alert, AlertTitle } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
+import { Box, Grid, Alert, AlertTitle, Pagination } from '@mui/material';
 
 import { fToNow } from 'src/utils/format-time';
 
@@ -24,6 +24,8 @@ export default function NotificationsPopover() {
   const [logs, setLogs] = useState([]);
   const [errors, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const handleOpen = (event) => {
     setOpen(event.currentTarget);
   };
@@ -32,25 +34,33 @@ export default function NotificationsPopover() {
     setOpen(null);
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(process.env.getLogs);
-        if (response.ok) {
-          const data = await response.json();
-          setLogs(data.logs);
-        } else {
-          throw new Error('Failed to fetch logs');
-        }
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const handlePageChange = (event, value) => {
+    setPage(value);
+    fetchData(value);
+  };
 
-    fetchData();
-  }, []);
+  const fetchData = async (currentPage = 1) => {
+    try {
+      const response = await fetch(
+        `${process.env.getLogs}?start_index=${(currentPage - 1) * 10}&end_index=${currentPage * 10}`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setLogs(data.logs);
+        setTotalPages(Math.ceil(data.total_logs / 10));
+      } else {
+        throw new Error('Failed to fetch logs');
+      }
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData(page);
+  }, [page]);
 
   function formatTimeAgo(timestamp) {
     const date = new Date(timestamp * 1000);
@@ -92,7 +102,7 @@ export default function NotificationsPopover() {
                   </Grid>
                 ) : (
                   <Grid container>
-                    {logs.map((log, i) => (
+                    {logs.reverse(c).map((log, i) => (
                       <Grid item lg={12} xss={12} key={i}>
                         {log.request_method === 'POST' ? (
                           <Alert
@@ -124,6 +134,15 @@ export default function NotificationsPopover() {
               </>
             )}
           </Box>
+        </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, padding: '10px' }}>
+          <Pagination
+            count={totalPages}
+            page={page}
+            onChange={handlePageChange}
+            color="primary"
+            style={{ marginTop: '16px' }}
+          />
         </Box>
       </Popover>
     </>

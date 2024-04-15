@@ -36,6 +36,7 @@ export default function AppView() {
         if (res.ok) {
           const data = await res.json();
           setDashData(data.data);
+          console.log('data=============>', data);
           setDateAndeTime(
             data.data.map(
               (item) =>
@@ -66,8 +67,6 @@ export default function AppView() {
     setDataLength(newDataLength.reverse());
   }, [dashData]);
 
-  console.log('Dashdata', dashData);
-
   let totalSecrets = 0;
   const totalRepos = [];
 
@@ -93,8 +92,9 @@ export default function AppView() {
     });
   }
 
-  const dividedArray = dataLength.map((value) => (totalSecrets / value).toFixed(2));
-
+  const dataOfYaxis = dataLength.map((value) => (totalSecrets / value).toFixed(2));
+  console.log('y==========>', dataOfYaxis);
+  console.log('x==========>', dateAndTime);
   const convertedArray = dateAndTime.map((dateTime) => {
     const [date, time] = dateTime.split(' ');
     const [year, month, day] = date.split('/').map((part) => parseInt(part, 10));
@@ -107,7 +107,7 @@ export default function AppView() {
   });
 
   // const xData = [2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024];
-  const data = dividedArray.reverse();
+  const data = dataOfYaxis.reverse();
   const xData = convertedArray; // Date And Time data
 
   if (errors) {

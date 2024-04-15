@@ -162,10 +162,8 @@ export default function UserPage() {
 
         return response;
       })
-      .then((data) => {
-        setErrors('Failed to fetch scan data. Please try again later.');
-      })
-      .catch((error) => setErrors(error.message));
+      .then((data) => {})
+      .catch((error) => setErrors('Failed to fetch scan data. Please try again later.'));
   };
 
   console.log('sort..........', sort);
@@ -267,6 +265,7 @@ export default function UserPage() {
             rowsPerPage={rowsPerPage}
             onChange={(event, newPage) => handleChangePage(event, newPage - 1)}
             onRowsPerPageChange={(event) => handleChangeRowsPerPage(event.target.value)}
+            color="primary"
           />
         </TableContainer>
       </Scrollbar>
