@@ -102,7 +102,7 @@ export default function NotificationsPopover() {
                   </Grid>
                 ) : (
                   <Grid container>
-                    {logs.reverse(c).map((log, i) => (
+                    {logs.reverse().map((log, i) => (
                       <Grid item lg={12} xss={12} key={i}>
                         {log.request_method === 'POST' ? (
                           <Alert
