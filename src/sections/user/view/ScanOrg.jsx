@@ -19,6 +19,8 @@ function ScanOrg() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState(null);
+  const accessToken = localStorage.getItem('accessToken');
+
   const fetchScanOrg = async () => {
     setLoading(true);
     try {
@@ -26,6 +28,7 @@ function ScanOrg() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
         },
       });
       if (res.ok) {

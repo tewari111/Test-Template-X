@@ -35,12 +35,18 @@ const ShowSecrets = () => {
   const [visibility, setVisibility] = useState('hidden');
   const [secretValue, setSecret] = useState();
   const { id, startIndex, endIndex } = useParams();
+  const accessToken = localStorage.getItem('accessToken');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          `${process.env.getOrgScan}?start_index=${startIndex}&end_index=${endIndex}`
+          `${process.env.getOrgScan}?start_index=${startIndex}&end_index=${endIndex}`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
         );
         const data = await response.json();
         setSecretsData(data.repositories);
@@ -52,7 +58,7 @@ const ShowSecrets = () => {
     };
 
     fetchData();
-  }, [startIndex, endIndex]);
+  }, [startIndex, endIndex, accessToken]);
 
   const setWhitelistSecrets = async (result) => {
     try {
@@ -60,6 +66,7 @@ const ShowSecrets = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(result),
       });
@@ -118,7 +125,6 @@ const ShowSecrets = () => {
           Repository: repoName,
         },
       ];
-      console.log(result);
       setWhitelistSecrets(result);
     }
   }

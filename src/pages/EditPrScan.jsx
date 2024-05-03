@@ -31,11 +31,15 @@ function EditPrScan() {
     gitActions: [],
     targetRepos: [],
   });
-
+  const accessToken = localStorage.getItem('accessToken');
   useEffect(() => {
     const webHookConfig = async () => {
       try {
-        const response = await fetch(process.env.webhookConfig);
+        const response = await fetch(process.env.webhookConfig, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
         if (response.ok) {
           const responseData = await response.json();
           console.log('test============+++++++>');
@@ -48,7 +52,7 @@ function EditPrScan() {
       }
     };
     webHookConfig();
-  }, []);
+  }, [accessToken]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -58,6 +62,7 @@ function EditPrScan() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(formData),
       });

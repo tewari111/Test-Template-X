@@ -38,23 +38,14 @@ export default function UserTableRow({
   const [openDialog, setOpenDialog] = useState(false);
   // const [secret, setData]=useState(null);
   const navigate = useNavigate();
-  console.log('Name: ', name);
   const reScan = async () => {
-    const currentTime = new Date().toLocaleTimeString();
-    const currentDate = new Date().toLocaleDateString();
-    const newMessageEntry = `Org scan started!: ${currentDate} ${currentTime}`;
-
-    // Retrieve the existing messages array from localStorage
-    const storedMessages = localStorage.getItem('postRequestMessages');
-    const messages = storedMessages ? JSON.parse(storedMessages) : [];
-
-    const updatedMessages = [...messages, newMessageEntry];
-    localStorage.setItem('postRequestMessages', JSON.stringify(updatedMessages));
+    const accessToken = localStorage.getItem('accessToken');
     handleOpenDialog();
     fetch(process.env.scanRepo, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify(Array(name)),
     })

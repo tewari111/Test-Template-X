@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 import {
   Grid,
@@ -24,28 +24,35 @@ const SettingPage = () => {
     PRcomment: '',
     blockPR: false,
   });
-
+  const access_token = localStorage.getItem('accessToken');
+  console.log('access_token', access_token);
+  const accessToken = localStorage.getItem('accessToken');
   const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
   const [errors, setErrors] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
-      const response = await fetch(process.env.settings);
+      const response = await fetch(process.env.settings, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
       if (response.ok) {
         const data = await response.json();
         setFormData(data);
       }
     } catch (error) {
-      setErrors('Field to fetch data. Please try again.');
+      setErrors('Failed to fetch data. Please try again.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [accessToken]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -59,32 +66,21 @@ const SettingPage = () => {
     event.preventDefault();
     try {
       const response = await fetch(process.env.settings, {
-        method: 'POST', // or 'PUT' if applicable
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(formData),
       });
 
       if (response.ok) {
-        // add action to localstorage
-        const currentTime = new Date().toLocaleTimeString();
-        const currentDate = new Date().toLocaleDateString();
-        const newMessageEntry = `Configs updated: ${currentDate} ${currentTime}`;
-
-        // Retrieve the existing messages array from localStorage
-        const storedMessages = localStorage.getItem('postRequestMessages');
-        const messages = storedMessages ? JSON.parse(storedMessages) : [];
-
-        const updatedMessages = [...messages, newMessageEntry];
-        localStorage.setItem('postRequestMessages', JSON.stringify(updatedMessages));
-
         setIsSuccessDialogOpen(true);
       } else {
-        setErrors('Field to update config. Please try again.');
+        setErrors('Failed to update config. Please try again.');
       }
     } catch (error) {
-      setErrors('Field to fetch data. Please try again.');
+      setErrors('Failed to fetch data. Please try again.');
     }
   };
 

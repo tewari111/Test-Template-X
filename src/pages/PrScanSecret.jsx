@@ -40,29 +40,16 @@ function PrScanSecret() {
     targetRepos: [],
   });
 
-  // useEffect(() => {
-  //   const webHookConfig = async () => {
-  //     try {
-  //       const response = await fetch(process.env.webhookConfig);
-  //       if (response.ok) {
-  //         const responseData = await response.json();
-  //         console.log(response);
-  //         setWebHookData(responseData);
-  //       }
-  //     } catch (error) {
-  //       setErrors('Field to fetch webhookConfig. Please try again later.');
-  //       // Handle the error appropriately (e.g., show an error message to the user)
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   webHookConfig();
-  // }, []);
+  const accessToken = localStorage.getItem('accessToken');
 
   useEffect(() => {
     const fetchPrScanSecret = async () => {
       try {
-        const response = await fetch(process.env.prScanSecret);
+        const response = await fetch(process.env.prScanSecret, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
         if (response.ok) {
           const responseData = await response.json();
           const res = responseData.scanData;
@@ -83,7 +70,7 @@ function PrScanSecret() {
       }
     };
     fetchPrScanSecret();
-  }, []);
+  }, [accessToken]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();

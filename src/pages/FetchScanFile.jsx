@@ -43,6 +43,7 @@ function FetchScanFile() {
   const trimed = dateOfScan.trim();
   const splited = trimed.split(' ');
   const updatedDate = `${splited[0]}%20${splited[1]}`;
+  const accessToken = localStorage.getItem('accessToken');
 
   const handleOpenDialog = () => {
     setOpenDialog(true);
@@ -62,7 +63,11 @@ function FetchScanFile() {
   useEffect(() => {
     const fetchScanFile = async () => {
       try {
-        const response = await fetch(`${process.env.fetchScanFile}${updatedDate}`);
+        const response = await fetch(`${process.env.fetchScanFile}${updatedDate}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
         const responseData = await response.text();
         const parsedData = yaml.parse(responseData);
         setFetchedData(parsedData);
@@ -74,7 +79,7 @@ function FetchScanFile() {
     };
 
     fetchScanFile();
-  }, [updatedDate]);
+  }, [updatedDate, accessToken]);
 
   function setValue() {
     if (checkboxData.length !== 0) {
@@ -114,13 +119,12 @@ function FetchScanFile() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(result),
       });
 
       if (response.ok) {
-        console.log('Whitelist secrets set successfully');
-        // const data = await response.json();
         handleClose();
       } else {
         console.error('Error setting whitelist secrets:', response.status, response.statusText);

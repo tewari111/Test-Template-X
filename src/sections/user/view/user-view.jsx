@@ -1,7 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
-// import Card from '@mui/material/Card';
-// import { Grid } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
@@ -40,26 +38,39 @@ export default function UserPage() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(0);
-
-  // const [formData, setFormData] = useState({
-  //   url: '',
-  //   date: '',y
-  // });
-
   const [scanData, setScanData] = useState([]);
   const [totalRepos, setTotalRepos] = useState([]);
   // const [messages, setMessages] = useState([]);
 
   const startIndex = page * rowsPerPage;
   const endIndex = (page + 1) * rowsPerPage;
-  console.log('startIndex.........', startIndex);
-  console.log('endIndex.........', endIndex);
+  const accessToken = localStorage.getItem('accessToken');
+  const fetchTotlaRepos = useCallback(async () => {
+    try {
+      const response = await fetch(process.env.settings, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setTotalRepos(data);
+      }
+    } catch (error) {
+      setErrors('Failed to fetch totalRepos data. Please try again later.');
+    }
+  }, [accessToken, setTotalRepos, setErrors]);
 
   useEffect(() => {
     const fetchScanData = async () => {
       try {
         const response = await fetch(
-          `${process.env.getOrgScan}?start_index=${startIndex}&end_index=${endIndex}`
+          `${process.env.getOrgScan}?start_index=${startIndex}&end_index=${endIndex}`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
         );
         if (response.ok) {
           const data = await response.json();
@@ -75,19 +86,7 @@ export default function UserPage() {
 
     fetchScanData();
     fetchTotlaRepos();
-  }, [page, rowsPerPage, startIndex, endIndex]);
-
-  const fetchTotlaRepos = async () => {
-    try {
-      const response = await fetch(process.env.settings);
-      if (response.ok) {
-        const data = await response.json();
-        setTotalRepos(data);
-      }
-    } catch (error) {
-      setErrors('Failed to fetch totalRepos data. Please try again later.');
-    }
-  };
+  }, [page, rowsPerPage, startIndex, endIndex, accessToken, fetchTotlaRepos]);
 
   const totalReposPercent = (scanData.length / totalRepos.totalRepos) * 100 || 0;
 
@@ -154,7 +153,11 @@ export default function UserPage() {
 
   const handleSearch = async (keyword) => {
     const url = `${process.env.getOrgScan}?start_index=${startIndex}&end_index=${endIndex}&sort=${sort}&keyword=${filterName}`;
-    fetch(url)
+    fetch(url, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })
       .then((response) => {
         if (response.ok) {
           return response.json();

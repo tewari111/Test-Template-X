@@ -30,11 +30,15 @@ export default function WhitelistSecrets() {
   const [secretKey, setSecretKey] = useState('');
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState(null);
-
+  const accessToken = localStorage.getItem('accessToken');
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch(process.env.getWhitelistSecrets);
+        const res = await fetch(process.env.getWhitelistSecrets, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
         if (res.ok) {
           const data = await res.json();
           setFetchedData(data);
@@ -48,13 +52,14 @@ export default function WhitelistSecrets() {
       }
     };
     fetchData();
-  }, []);
+  }, [accessToken]);
 
   const handleClick = async () => {
     fetch(process.env.removeWhitelistSecrets, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify({
         removeWhitelistSecret: secretKey,

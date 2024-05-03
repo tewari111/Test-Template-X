@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
-import { useState, useEffect } from 'react';
 import { formatDistanceToNow } from 'date-fns';
+import { useState, useEffect, useCallback } from 'react';
 
 import Badge from '@mui/material/Badge';
 import Avatar from '@mui/material/Avatar';
@@ -26,6 +26,7 @@ export default function NotificationsPopover() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const accessToken = localStorage.getItem('accessToken');
   const handleOpen = (event) => {
     setOpen(event.currentTarget);
   };
@@ -39,28 +40,38 @@ export default function NotificationsPopover() {
     fetchData(value);
   };
 
-  const fetchData = async (currentPage = 1) => {
-    try {
-      const response = await fetch(
-        `${process.env.getLogs}?start_index=${(currentPage - 1) * 10}&end_index=${currentPage * 10}`
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setLogs(data.logs);
-        setTotalPages(Math.ceil(data.total_logs / 10));
-      } else {
-        throw new Error('Failed to fetch logs');
+  const fetchData = useCallback(
+    async (currentPage = 1) => {
+      try {
+        const response = await fetch(
+          `${process.env.getLogs}?start_index=${(currentPage - 1) * 10}&end_index=${
+            currentPage * 10
+          }`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setLogs(data.logs);
+          setTotalPages(Math.ceil(data.total_logs / 10));
+        } else {
+          throw new Error('Failed to fetch logs');
+        }
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      setError(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [accessToken]
+  );
 
   useEffect(() => {
     fetchData(page);
-  }, [page]);
+  }, [fetchData, page]);
 
   function formatTimeAgo(timestamp) {
     const date = new Date(timestamp * 1000);
