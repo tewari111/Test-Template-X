@@ -2,19 +2,19 @@ import { useState, useEffect } from 'react';
 import { Chart } from 'react-google-charts';
 
 import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
 import Grid from '@mui/material/Unstable_Grid2';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import { LineChart } from '@mui/x-charts/LineChart';
 import CircularProgress from '@mui/material/CircularProgress';
+
 import AwsLogin from 'src/AwsLogin';
 
 import ScanOrg from 'src/sections/user/view/ScanOrg';
 import ErrorPage from 'src/sections/error/ErrorPage';
-// import AppCurrentVisits from '../app-current-visits';
 
 import AppWidgetSummary from '../app-widget-summary';
+
 export const options = {
   title: 'Repos Ratio',
   pieHole: 0.4,
@@ -84,7 +84,7 @@ export default function AppView() {
 
   const totalRepo = totalRepos.length;
   const secretRatio = totalSecrets / totalRepo;
-  const totalReposPercent = (totalRepo / totalRepo) * 100;
+  // const totalReposPercent = (totalRepo / totalRepo) * 100;
 
   const pieChartData1 = [['Task', 'Hours per Day']];
 
@@ -96,8 +96,6 @@ export default function AppView() {
   }
 
   const dataOfYaxis = dataLength.map((value) => (totalSecrets / value).toFixed(2));
-  console.log('y==========>', dataOfYaxis);
-  console.log('x==========>', dateAndTime);
   const convertedArray = dateAndTime.map((dateTime) => {
     const [date, time] = dateTime.split(' ');
     const [year, month, day] = date.split('/').map((part) => parseInt(part, 10));
@@ -123,11 +121,8 @@ export default function AppView() {
         <Typography variant="h4" sx={{ mb: 5 }}>
           Hi, Welcome back 👋
         </Typography>
-        <AwsLogin />
         <Grid display="flex">
-          <Button variant="contained" sx={{ mr: 1 }}>
-            {totalReposPercent.toFixed(0)}%
-          </Button>
+          <AwsLogin />
           <ScanOrg />
         </Grid>
       </Stack>

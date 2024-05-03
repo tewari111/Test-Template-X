@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
-import Button from '@mui/material/Button';
+// import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import { Grid, Pagination } from '@mui/material';
@@ -39,27 +39,27 @@ export default function UserPage() {
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(0);
   const [scanData, setScanData] = useState([]);
-  const [totalRepos, setTotalRepos] = useState([]);
+  // const [totalRepos, setTotalRepos] = useState([]);
   // const [messages, setMessages] = useState([]);
 
   const startIndex = page * rowsPerPage;
   const endIndex = (page + 1) * rowsPerPage;
   const accessToken = localStorage.getItem('accessToken');
-  const fetchTotlaRepos = useCallback(async () => {
-    try {
-      const response = await fetch(process.env.settings, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setTotalRepos(data);
-      }
-    } catch (error) {
-      setErrors('Failed to fetch totalRepos data. Please try again later.');
-    }
-  }, [accessToken, setTotalRepos, setErrors]);
+  // const fetchTotlaRepos = useCallback(async () => {
+  //   try {
+  //     const response = await fetch(process.env.settings, {
+  //       headers: {
+  //         Authorization: `Bearer ${accessToken}`,
+  //       },
+  //     });
+  //     if (response.ok) {
+  //       const data = await response.json();
+  //       setTotalRepos(data);
+  //     }
+  //   } catch (error) {
+  //     setErrors('Failed to fetch totalRepos data. Please try again later.');
+  //   }
+  // }, [accessToken, setTotalRepos, setErrors]);
 
   useEffect(() => {
     const fetchScanData = async () => {
@@ -85,10 +85,9 @@ export default function UserPage() {
     };
 
     fetchScanData();
-    fetchTotlaRepos();
-  }, [page, rowsPerPage, startIndex, endIndex, accessToken, fetchTotlaRepos]);
+  }, [page, rowsPerPage, startIndex, endIndex, accessToken]);
 
-  const totalReposPercent = (scanData.length / totalRepos.totalRepos) * 100 || 0;
+  // const totalReposPercent = (scanData.length / totalRepos.totalRepos) * 100 || 0;
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
@@ -194,9 +193,6 @@ export default function UserPage() {
         <Typography variant="h4">Repositories</Typography>
 
         <Grid display="flex">
-          <Button variant="contained" sx={{ mr: 1 }}>
-            {totalReposPercent.toFixed(0)}%
-          </Button>
           <ScanOrg />
         </Grid>
       </Stack>

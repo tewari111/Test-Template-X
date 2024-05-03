@@ -9,15 +9,11 @@ function AwsLogin() {
   };
 
   useEffect(() => {
-    console.log('AccessToken.....1');
     const handleRedirect = () => {
-      console.log('AccessToken.....2');
       const params = new URLSearchParams(window.location.hash.substr(1));
       const accessToken = params.get('access_token');
-      console.log('AccessToken.....', accessToken);
       localStorage.setItem('accessToken', accessToken);
       window.location.href = 'http://localhost:3030/';
-      console.log('AccessToken.....3', accessToken);
     };
 
     // Check if the URL contains an access token
@@ -26,10 +22,9 @@ function AwsLogin() {
     }
   }, []);
   // const access_token = localStorage.getItem('accessToken');
-  console.log('window.location.hash', window.location.hash);
   return (
     <div>
-      <Button variant="contained" color="primary" onClick={handleButtonClick}>
+      <Button variant="contained" color="primary" onClick={handleButtonClick} sx={{ mr: 1 }}>
         Authenticate
       </Button>
     </div>
