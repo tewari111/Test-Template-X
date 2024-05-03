@@ -14,6 +14,7 @@ import ErrorPage from 'src/sections/error/ErrorPage';
 // import AppCurrentVisits from '../app-current-visits';
 
 import AppWidgetSummary from '../app-widget-summary';
+import AwsLogin from 'src/AwsLogin';
 
 export const options = {
   title: 'Repos Ratio',
@@ -27,11 +28,11 @@ export default function AppView() {
   const [dataLength, setDataLength] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState(null);
-
+  const access_token = localStorage.getItem('accessToken');
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch(`${process.env.baseUrl}/getDash?start_index=0&end_index=10`);
+        const res = await fetch(`${process.env.baseUrl}/getDash?start_index=0&end_index=10`, {});
 
         if (res.ok) {
           const data = await res.json();
@@ -120,6 +121,8 @@ export default function AppView() {
         <Typography variant="h4" sx={{ mb: 5 }}>
           Hi, Welcome back 👋
         </Typography>
+        <AwsLogin />
+
         <Grid display="flex">
           <Button variant="contained" sx={{ mr: 1 }}>
             {totalReposPercent.toFixed(0)}%
@@ -128,7 +131,6 @@ export default function AppView() {
         </Grid>
       </Stack>
 
-      {/* @TODO change the logo */}
       {loading ? (
         <Grid container justifyContent="center" mt={10} mr={5}>
           <CircularProgress />
@@ -144,7 +146,6 @@ export default function AppView() {
             />
           </Grid>
 
-          {/* @TODO change the logo */}
           <Grid xs={12} sm={6} md={3}>
             <AppWidgetSummary
               title="Total Repos"
@@ -153,7 +154,6 @@ export default function AppView() {
               icon={<img alt="icon" src="/assets/icons/glass/ic_glass_users.png" />}
             />
           </Grid>
-          {/* @TODO change the logo */}
 
           <Grid xs={12} sm={6} md={3}>
             <AppWidgetSummary
@@ -171,16 +171,6 @@ export default function AppView() {
               margin={{ top: 30, bottom: 20 }}
             />
           </Grid>
-          {/*
-          <Grid xs={12} md={6} lg={5}>
-            <AppCurrentVisits
-              title="Repos Ratio"
-              chart={{
-                series: pieChartData,
-              }}
-            />
-          </Grid>
-          */}
 
           <Grid xs={12} md={12} lg={12} mt={1.5} bgcolor="white" borderRadius="15px" height="78vh">
             <Chart

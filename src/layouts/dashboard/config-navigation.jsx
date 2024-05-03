@@ -33,6 +33,13 @@ const navConfig = [
     path: '/settings',
     icon: icon('ic_cart'),
   },
+
+  {
+    title: 'Login',
+    path: '/aws-login',
+    icon: icon('ic_cart'),
+  },
+
   // {
   //   title: 'login',
   //   path: '/login',

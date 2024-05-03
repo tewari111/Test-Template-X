@@ -9,6 +9,7 @@ import Login from 'src/sections/login/Login';
 import ErrorPage from 'src/sections/error/ErrorPage';
 import ShowSecrets from 'src/sections/user/view/ShowSecrets';
 
+import AwsLogin from '../AwsLogin';
 import SettingPage from './components/SettingPage';
 
 export const IndexPage = lazy(() => import('src/pages/app'));
@@ -44,6 +45,7 @@ export default function Router() {
           element: <FetchScanFile />,
         },
         { path: '/error', element: <ErrorPage /> },
+
         // { path: '/login', element: <Login /> },
         // { path: 'blog', element: <BlogPage /> },
       ],
@@ -60,6 +62,7 @@ export default function Router() {
       path: '*',
       element: <Navigate to="/404" replace />,
     },
+    { path: '/aws-login', element: <AwsLogin /> },
   ]);
 
   return routes;

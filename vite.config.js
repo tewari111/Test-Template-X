@@ -3,7 +3,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import checker from 'vite-plugin-checker';
 
-const baseUrl = 'http://65.1.132.241:8000';
+const baseUrl = 'http://13.239.15.200:8000';
 export default defineConfig({
   plugins: [
     react(),
