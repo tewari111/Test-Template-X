@@ -35,6 +35,7 @@ export default defineConfig({
       setWhitelistSecrets: `${baseUrl}/setWhitelistSecrets`,
       webhookConfig: `${baseUrl}/webhookConfig`,
       prScanSecret: `${baseUrl}/prScanSecret`,
+      showNewSecret: `${baseUrl}/showNewSecret`,
       removeWhitelistSecrets: `${baseUrl}/removeWhitelistSecrets`,
       getWhitelistSecrets: `${baseUrl}/getWhitelistSecrets`,
       getLogs: `${baseUrl}/getLogs`,

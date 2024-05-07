@@ -291,8 +291,10 @@ function PrScanSecret() {
                     <Typography sx={{ fontWeight: 'bold' }}>Secret File</Typography>
                   </Grid>
                   <Grid item xs={9} md={9} sx={{ display: 'flex' }}>
-                    <a href={`${process.env.fetchScanFile}${item.date_of_scan}`}>
-                      go to secret file
+                    <a
+                      href={`http://localhost:3030/showNewSecret?date_of_scan=${item.date_of_scan}`}
+                    >
+                      go to secret file:
                     </a>
                   </Grid>
                 </Grid>

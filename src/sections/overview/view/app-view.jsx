@@ -111,6 +111,32 @@ export default function AppView() {
   const data = dataOfYaxis.reverse();
   const xData = convertedArray; // Date And Time data
 
+  // Get the token from localStorage
+  const token = localStorage.getItem('accessToken');
+
+  // Split the token into sections
+  let sections;
+  if (token) {
+    sections = token.split('.');
+  }
+  // Log the third section
+
+  // Decode the third section
+  try {
+    const decodedSection = atob(sections[1]);
+
+    // Parse the decoded section as JSON
+    const decodedData = JSON.parse(decodedSection);
+
+    // Extract the username using object destructuring
+    const { username } = decodedData;
+
+    // Save the username in localStorage
+    localStorage.setItem('username', username);
+  } catch (error) {
+    <ErrorPage errorMessage="Field to decode token" />;
+  }
+
   if (errors) {
     return <ErrorPage errorMessage={errors} />;
   }
