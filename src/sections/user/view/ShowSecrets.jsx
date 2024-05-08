@@ -22,14 +22,17 @@ import {
 } from '@mui/material';
 
 import Iconify from 'src/components/iconify';
+
+import ErrorPage from 'src/sections/error/ErrorPage';
 // import Iconify from 'src/components/iconify';
 
 const ShowSecrets = () => {
   const [secretsData, setSecretsData] = useState([]);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [openDialog, setOpenDialog] = useState(false);
-  const [OrgScopeValue, setOrgScopeValue] = useState();
+  // const [OrgScopeValue, setOrgScopeValue] = useState();
   const [loading, setLoading] = useState(true);
+  const [errors, setErrors] = useState(null);
   const [checkboxData, setCheckboxData] = useState([]);
   const [repoName, setRepoName] = useState();
   const [visibility, setVisibility] = useState('hidden');
@@ -51,7 +54,7 @@ const ShowSecrets = () => {
         const data = await response.json();
         setSecretsData(data.repositories);
       } catch (error) {
-        console.error('Error fetching secrets:', error);
+        setErrors('Field to fetch secrets!');
       } finally {
         setLoading(false);
       }
@@ -61,6 +64,7 @@ const ShowSecrets = () => {
   }, [startIndex, endIndex, accessToken]);
 
   const setWhitelistSecrets = async (result) => {
+    console.log('result: ', result);
     try {
       const response = await fetch(process.env.setWhitelistSecrets, {
         method: 'POST',
@@ -75,11 +79,15 @@ const ShowSecrets = () => {
         console.log('Whitelist secrets set successfully');
         const data = await response.json();
         console.log(data);
+      } else if (response.status === 401) {
+        setErrors("you don't have access");
+      } else if (response.status === 400) {
+        setErrors('you entred uncorrected data');
       } else {
-        console.error('Error setting whitelist secrets:', response.status, response.statusText);
+        setErrors('Field to do it. please tray agian');
       }
     } catch (error) {
-      console.error('Error setting whitelist secrets:', error);
+      setErrors('Error setting whitelist secrets:');
     }
   };
 
@@ -109,11 +117,11 @@ const ShowSecrets = () => {
     setOpenDialog(false);
   };
 
-  function setValue() {
+  function setValue({ varified }) {
     if (checkboxData.length !== 0) {
       const result = checkboxData.map((item) => ({
         Secret: item,
-        OrgScope: OrgScopeValue,
+        OrgScope: varified,
         Repository: repoName,
       }));
       setWhitelistSecrets(result);
@@ -121,12 +129,25 @@ const ShowSecrets = () => {
       const result = [
         {
           Secret: secretValue,
-          OrgScope: !OrgScopeValue,
+          OrgScope: varified,
           Repository: repoName,
         },
       ];
       setWhitelistSecrets(result);
     }
+  }
+
+  if (errors) {
+    return <ErrorPage errorMessage={errors} />;
+  }
+
+  if (loading) {
+    return (
+      <Grid item xs={6} lg={6} mt={20} display="flex" justifyContent="center">
+        {' '}
+        <CircularProgress />{' '}
+      </Grid>
+    );
   }
 
   return (
@@ -169,8 +190,7 @@ const ShowSecrets = () => {
         <DialogActions>
           <Button
             onClick={() => {
-              setOrgScopeValue(true);
-              setValue();
+              setValue({ varified: true });
               handelCloseDialog();
             }}
           >
@@ -178,8 +198,7 @@ const ShowSecrets = () => {
           </Button>
           <Button
             onClick={() => {
-              setOrgScopeValue(false);
-              setValue();
+              setValue({ varified: false });
               handelCloseDialog();
             }}
           >
@@ -187,7 +206,7 @@ const ShowSecrets = () => {
           </Button>
         </DialogActions>
       </Dialog>
-      <Grid>
+      <Grid container>
         {loading ? (
           <Grid container textAlign="center" justifyContent="center">
             <CircularProgress sx={{ mr: 10 }} />

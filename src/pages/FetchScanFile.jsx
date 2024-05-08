@@ -28,7 +28,7 @@ function FetchScanFile() {
   const [fechedData, setFetchedData] = useState([]);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [repoName, setRepoName] = useState();
-  const [verified, setVerified] = useState();
+  // const [verified, setVerified] = useState();
   const [openDialog, setOpenDialog] = useState(false);
   const [checkboxData, setCheckboxData] = useState([]);
   const [visibility, setVisibility] = useState('hidden');
@@ -81,11 +81,11 @@ function FetchScanFile() {
     fetchScanFile();
   }, [updatedDate, accessToken]);
 
-  function setValue() {
+  function setValue({ varified }) {
     if (checkboxData.length !== 0) {
       const result = checkboxData.map((item) => ({
         Secret: item,
-        OrgScope: verified,
+        OrgScope: varified,
         Repository: repoName,
       }));
       setWhitelistSecrets(result);
@@ -93,7 +93,7 @@ function FetchScanFile() {
       const result = [
         {
           Secret: raw,
-          OrgScope: !verified,
+          OrgScope: varified,
           Repository: repoName,
         },
       ];
@@ -114,6 +114,7 @@ function FetchScanFile() {
   };
 
   const setWhitelistSecrets = async (result) => {
+    // console.log('result: ', result);
     try {
       const response = await fetch(process.env.setWhitelistSecrets, {
         method: 'POST',
@@ -126,8 +127,12 @@ function FetchScanFile() {
 
       if (response.ok) {
         handleClose();
+      } else if (response.status === 401) {
+        setErrors("you don't have access");
+      } else if (response.status === 400) {
+        setErrors('you entred uncorrected data');
       } else {
-        console.error('Error setting whitelist secrets:', response.status, response.statusText);
+        setErrors("it's field please tray agian");
       }
     } catch (error) {
       setErrors('Field to submit it. please try again.');
@@ -145,8 +150,6 @@ function FetchScanFile() {
     }
     return `${nestedKey}: ${content}`;
   }
-
-  console.log('fechedData........', fechedData[0]);
 
   function renderNestedValue(nestedKey, nestedValue) {
     let content;
@@ -213,37 +216,13 @@ function FetchScanFile() {
           }
         />
       </Grid>
-      <Dialog open={openDialog}>
-        <DialogTitle>Do you want to this white list for entire org?</DialogTitle>
-        <DialogActions>
-          <Button
-            onClick={() => {
-              verified(true);
-              setValue();
-              handelCloseDialog();
-            }}
-          >
-            Yes
-          </Button>
-          <Button
-            onClick={() => {
-              verified(false);
-              setValue();
-              handelCloseDialog();
-            }}
-          >
-            No
-          </Button>
-        </DialogActions>
-      </Dialog>
 
       <Dialog open={openDialog}>
         <DialogTitle>Do you want to this white list for entire org?</DialogTitle>
         <DialogActions>
           <Button
             onClick={() => {
-              setVerified(true);
-              setValue();
+              setValue({ varified: true });
               handelCloseDialog();
             }}
           >
@@ -251,8 +230,7 @@ function FetchScanFile() {
           </Button>
           <Button
             onClick={() => {
-              setVerified(false);
-              setValue();
+              setValue({ varified: false });
               handelCloseDialog();
             }}
           >
@@ -268,14 +246,14 @@ function FetchScanFile() {
         ) : (
           <>
             {fechedData.map((item, index) => (
-              <Grid sx={{ display: 'flex' }}>
+              <Grid sx={{ display: 'flex' }} key={index}>
                 <FormGroup sx={{ mt: 5 }}>
                   <FormControlLabel
                     control={
                       <Checkbox
                         value={item.Raw}
                         onChange={(event) => {
-                          setRepoName('');
+                          setRepoName(item.RepoName);
                           handleCheckboxChange(event);
                         }}
                       />
@@ -318,6 +296,7 @@ function FetchScanFile() {
                                   <Button
                                     onClick={() => {
                                       setRaw(item.Raw);
+                                      setRepoName(item.RepoName);
                                       handleOpenDialog();
                                     }}
                                     startIcon={<Iconify icon="ri:checkbox-circle-fill" />}

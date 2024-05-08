@@ -135,7 +135,7 @@ function PrScanSecret() {
   }
   return (
     <Grid container>
-      <Grid>
+      <Grid container>
         <Dialog open={openDialog}>
           <DialogTitle>PR Config</DialogTitle>
           <DialogContent>
