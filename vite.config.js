@@ -40,6 +40,11 @@ export default defineConfig({
       getWhitelistSecrets: `${baseUrl}/getWhitelistSecrets`,
       getLogs: `${baseUrl}/getLogs`,
       fetchScanFile: `${baseUrl}/fetchScanFile?date_of_scan=`,
+      loginURL:
+        'https://secret-dash.auth.ap-southeast-2.amazoncognito.com/oauth2/authorize?client_id=2sba7j1pps1i03qm1o97np0t97&response_type=token&scope=email+openid+phone&redirect_uri=http%3A%2F%2Flocalhost%3A3030%2F',
+      logoutURL:
+        'https://secret-dash.auth.ap-southeast-2.amazoncognito.com/oauth2/authorize?client_id=2sba7j1pps1i03qm1o97np0t97&response_type=token&scope=email+openid+phone&redirect_uri=http%3A%2F%2Flocalhost%3A3030%2F',
+      redirectURL: 'http://localhost:3030/',
     },
   },
   server: {

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
@@ -33,7 +32,7 @@ import { account } from 'src/_mock/account';
 
 export default function AccountPopover() {
   const [open, setOpen] = useState(null);
-  const navigate = useNavigate();
+
   const handleOpen = (event) => {
     setOpen(event.currentTarget);
   };
@@ -101,13 +100,11 @@ export default function AccountPopover() {
           disableRipple
           disableTouchRipple
           onClick={() => {
-            window.location.hash = '';
             localStorage.clear();
+            window.location.href = process.env.logoutURL;
             handleClose();
-            navigate('/');
+            window.location.href = process.env.redirectURL;
             window.location.reload();
-
-            window.history.replaceState(null, '', '/');
           }}
           sx={{ typography: 'body2', color: 'error.main', py: 1.5 }}
         >

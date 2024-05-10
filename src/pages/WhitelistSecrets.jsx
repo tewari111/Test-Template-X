@@ -43,7 +43,7 @@ export default function WhitelistSecrets() {
           const data = await res.json();
           setFetchedData(data);
         } else {
-          console.error('Error occurred while fetching data');
+          setErrors('Field to fetch whitelist. Please tray again later.');
         }
       } catch (error) {
         setErrors('Field to fetch whitelist. Please tray again later.');
@@ -73,7 +73,6 @@ export default function WhitelistSecrets() {
         }
         return response;
       })
-      .then((data) => console.log(data))
       .catch((error) => setErrors('Field to remove whitelist. Please try again.'));
   };
 
