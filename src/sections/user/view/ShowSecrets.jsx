@@ -214,7 +214,7 @@ const ShowSecrets = () => {
         ) : (
           <>
             {secretsData.map((repository, index) => (
-              <Grid item xs={12} md={6} key={index}>
+              <Grid item xs={12} md={12} key={index}>
                 {Number(id) === Number(index) && (
                   <Grid>
                     <Typography

@@ -261,93 +261,100 @@ function FetchScanFile() {
                   />
                 </FormGroup>
                 <Card sx={{ mt: 4 }} key={index}>
-                  <CardContent>
-                    {Object.entries(item).map(([key, value]) => (
-                      <Grid key={key}>
-                        {value && typeof value === 'object' ? (
-                          <Grid>
-                            <Grid container display="flex" justifyContent="space-between">
-                              <Typography variant="subtitle1" color="primary" paragraph>
-                                {key}:
-                              </Typography>
-                              <Box>
-                                <IconButton
-                                  id="basic-button"
-                                  aria-controls={open ? 'basic-menu' : undefined}
-                                  aria-haspopup="true"
-                                  aria-expanded={open ? 'true' : undefined}
-                                  onClick={(event) => {
-                                    handleClick(event);
-                                  }}
-                                  sx={{ height: '20px' }}
-                                >
-                                  <Iconify icon="eva:more-vertical-fill" />
-                                </IconButton>
-
-                                <Menu
-                                  id="basic-menu"
-                                  anchorEl={anchorEl}
-                                  open={open}
-                                  onClose={handleClose}
-                                  MenuListProps={{
-                                    'aria-labelledby': 'basic-button',
-                                  }}
-                                >
-                                  <Button
-                                    onClick={() => {
-                                      setRaw(item.Raw);
-                                      setRepoName(item.RepoName);
-                                      handleOpenDialog();
-                                    }}
-                                    startIcon={<Iconify icon="ri:checkbox-circle-fill" />}
-                                    sx={{ margin: '10px' }}
-                                  >
-                                    Whitelist
-                                  </Button>
-                                </Menu>
-                              </Box>
-                            </Grid>
-                            {Object.entries(value).map(([nestedKey, nestedValue]) => (
-                              <Grid key={nestedKey}>
-                                {nestedValue && typeof nestedValue === 'object' ? (
-                                  <Grid>
-                                    <Typography variant="subtitle2" color="textSecondary">
-                                      {nestedKey}:
-                                    </Typography>
-                                    {Object.entries(nestedValue).map(([innerKey, innerValue]) => (
-                                      <Grid key={innerKey}>
-                                        {innerValue && typeof innerValue === 'object' ? (
-                                          <Grid>
-                                            <Typography variant="body2" component="div">
-                                              {Object.entries(innerValue).map(
-                                                ([subKey, subValue]) => (
-                                                  <div key={subKey}>
-                                                    {subKey}: {subValue}
-                                                  </div>
-                                                )
+                  <Grid container display="flex">
+                    <Grid item xs={11}>
+                      <CardContent>
+                        {Object.entries(item).map(([key, value]) => (
+                          <Grid key={key}>
+                            {value && typeof value === 'object' ? (
+                              <Grid>
+                                <Grid container display="flex" justifyContent="space-between">
+                                  <Typography>{key}:</Typography>
+                                </Grid>
+                                {Object.entries(value).map(([nestedKey, nestedValue]) => (
+                                  <Grid key={nestedKey}>
+                                    {nestedValue && typeof nestedValue === 'object' ? (
+                                      <Grid display="flex">
+                                        <Typography>{nestedKey}</Typography>
+                                        {Object.entries(nestedValue).map(
+                                          ([innerKey, innerValue]) => (
+                                            <Grid key={innerKey}>
+                                              {innerValue && typeof innerValue === 'object' ? (
+                                                <Grid>
+                                                  <Typography variant="subtitle1" paragraph>
+                                                    {Object.entries(innerValue).map(
+                                                      ([subKey, subValue]) => (
+                                                        <Typography key={subKey}>
+                                                          {subKey}: {subValue}
+                                                        </Typography>
+                                                      )
+                                                    )}
+                                                  </Typography>
+                                                </Grid>
+                                              ) : (
+                                                <Grid key={nestedKey}>
+                                                  {renderNestedValue1(key, value)}
+                                                </Grid>
                                               )}
-                                            </Typography>
-                                          </Grid>
-                                        ) : (
-                                          <Grid key={nestedKey}>
-                                            {renderNestedValue1(key, value)}
-                                          </Grid>
+                                            </Grid>
+                                          )
                                         )}
                                       </Grid>
-                                    ))}
+                                    ) : (
+                                      <Grid key={key}>
+                                        {renderNestedValue(nestedKey, nestedValue)}
+                                      </Grid>
+                                    )}
                                   </Grid>
-                                ) : (
-                                  <Grid key={key}>{renderNestedValue(nestedKey, nestedValue)}</Grid>
-                                )}
+                                ))}
                               </Grid>
-                            ))}
+                            ) : (
+                              <Grid key={key}>{renderValue(key, value)}</Grid>
+                            )}
                           </Grid>
-                        ) : (
-                          <Grid key={key}>{renderValue(key, value)}</Grid>
-                        )}
-                      </Grid>
-                    ))}
-                  </CardContent>
+                        ))}
+                      </CardContent>
+                    </Grid>
+                    <Grid item xs={1} textAlign="end">
+                      {' '}
+                      <Box mt="10px">
+                        <IconButton
+                          id="basic-button"
+                          aria-controls={open ? 'basic-menu' : undefined}
+                          aria-haspopup="true"
+                          aria-expanded={open ? 'true' : undefined}
+                          onClick={(event) => {
+                            handleClick(event);
+                          }}
+                          sx={{ height: '20px' }}
+                        >
+                          <Iconify icon="eva:more-vertical-fill" />
+                        </IconButton>
+
+                        <Menu
+                          id="basic-menu"
+                          anchorEl={anchorEl}
+                          open={open}
+                          onClose={handleClose}
+                          MenuListProps={{
+                            'aria-labelledby': 'basic-button',
+                          }}
+                        >
+                          <Button
+                            onClick={() => {
+                              setRaw(item.Raw);
+                              setRepoName(item.RepoName);
+                              handleOpenDialog();
+                            }}
+                            startIcon={<Iconify icon="ri:checkbox-circle-fill" />}
+                            sx={{ margin: '10px' }}
+                          >
+                            Whitelist
+                          </Button>
+                        </Menu>
+                      </Box>
+                    </Grid>
+                  </Grid>
                 </Card>
               </Grid>
             ))}

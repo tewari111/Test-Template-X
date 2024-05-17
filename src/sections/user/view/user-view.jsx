@@ -1,3 +1,4 @@
+// import { debounce } from 'lodash';
 import { useState, useEffect } from 'react';
 
 import Stack from '@mui/material/Stack';
@@ -5,23 +6,27 @@ import Table from '@mui/material/Table';
 // import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
-import { Grid, Pagination } from '@mui/material';
-import Typography from '@mui/material/Typography';
-import TableContainer from '@mui/material/TableContainer';
-// import TablePagination from '@mui/material/TablePagination';
-import CircularProgress from '@mui/material/CircularProgress';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import InputAdornment from '@mui/material/InputAdornment';
+import {
+  Box,
+  Grid,
+  Button,
+  Pagination,
+  Typography,
+  TableContainer,
+  CircularProgress,
+} from '@mui/material';
 
-// import { users } from 'src/_mock/user';
+import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 
 import ErrorPage from 'src/sections/error/ErrorPage';
 
 import ScanOrg from './ScanOrg';
-import TableNoData from '../table-no-data';
 import UserTableRow from '../user-table-row';
 import UserTableHead from '../user-table-head';
 import UserTableToolbar from '../user-table-toolbar';
-import { applyFilter, getComparator } from '../utils';
 
 // ----------------------------------------------------------------------
 
@@ -32,9 +37,7 @@ export default function UserPage() {
   const [selected, setSelected] = useState([]);
   const [errors, setErrors] = useState(null);
   const [orderBy, setOrderBy] = useState('name');
-
-  const [filterName, setFilterName] = useState('');
-
+  const [keyword, setKeyword] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(0);
@@ -45,21 +48,6 @@ export default function UserPage() {
   const startIndex = page * rowsPerPage;
   const endIndex = (page + 1) * rowsPerPage;
   const accessToken = localStorage.getItem('accessToken');
-  // const fetchTotlaRepos = useCallback(async () => {
-  //   try {
-  //     const response = await fetch(process.env.settings, {
-  //       headers: {
-  //         Authorization: `Bearer ${accessToken}`,
-  //       },
-  //     });
-  //     if (response.ok) {
-  //       const data = await response.json();
-  //       setTotalRepos(data);
-  //     }
-  //   } catch (error) {
-  //     setErrors('Failed to fetch totalRepos data. Please try again later.');
-  //   }
-  // }, [accessToken, setTotalRepos, setErrors]);
 
   useEffect(() => {
     const fetchScanData = async () => {
@@ -145,39 +133,42 @@ export default function UserPage() {
     setPage(0);
   };
 
-  const handleFilterByName = (event) => {
-    setPage(0);
-    setFilterName(event.target.value);
+  const handleSearch = async () => {
+    setLoading(true);
+    const url = `${process.env.getOrgScan}?start_index=${startIndex}&end_index=${endIndex}&sort=${sort}&keyword=${keyword}`;
+    try {
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setScanData(data.repositories);
+      }
+    } catch (error) {
+      setErrors('Failed to fetch scan data. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSearch = async (keyword) => {
-    const url = `${process.env.getOrgScan}?start_index=${startIndex}&end_index=${endIndex}&sort=${sort}&keyword=${filterName}`;
-    fetch(url, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    })
-      .then((response) => {
-        if (response.ok) {
-          return response.json();
-        }
-
-        return response;
-      })
-      .then((data) => {})
-      .catch((error) => setErrors('Failed to fetch scan data. Please try again later.'));
+  const handleSearchChange = (e) => {
+    const check = Boolean(e.target.value);
+    if (check) {
+      setScanData(scanData);
+    }
+    setKeyword(e.target.value);
   };
-
-  console.log('sort..........', sort);
+  // const handleSearchDebounced = debounce(handleSearch, 2000);
+  // console.log('sort..........', sort);
   // users data change with api data
-  const dataFiltered = applyFilter({
-    inputData: scanData,
-    comparator: getComparator(order, orderBy),
-    filterName,
-  });
-
-  const notFound = !dataFiltered.length && !!filterName;
-
+  useEffect(() => {
+    if (keyword.length === 0) {
+      setScanData(scanData);
+    }
+  }, [keyword, scanData]);
   if (sort) {
     scanData.sort((a, b) => b.secrets.length - a.secrets.length);
   } else {
@@ -187,6 +178,7 @@ export default function UserPage() {
   if (errors) {
     return <ErrorPage errorMessage={errors} />;
   }
+
   return (
     <Container>
       <Stack direction="row" justifyContent="space-between" mb={6}>
@@ -197,15 +189,48 @@ export default function UserPage() {
         </Grid>
       </Stack>
 
-      {/* <Card> */}
-      <UserTableToolbar
-        numSelected={selected.length}
-        filterName={filterName}
-        onFilterName={handleFilterByName}
-        onKeyUp={handleSearch}
-        selected={selected}
-      />
-
+      <Box
+        sx={{
+          display: 'flex',
+          height: '100px',
+          justifyContent: 'space-between',
+          width: '100%',
+          alignItems: 'center',
+        }}
+      >
+        <Grid display="flex" alignItems="center">
+          <OutlinedInput
+            placeholder="Search and sort feature..."
+            onChange={handleSearchChange}
+            sx={{ width: '100%' }}
+            startAdornment={
+              <InputAdornment position="start">
+                <Iconify
+                  icon="eva:search-fill"
+                  sx={{ color: 'text.disabled', width: 30, height: 20 }}
+                />
+              </InputAdornment>
+            }
+          />
+          <Button
+            type="submit"
+            onClick={handleSearch}
+            variant="contained"
+            sx={{ ml: 1, bgcolor: '#DDDDDD', height: '50px', ':hover': { bgcolor: '#EEEEEE' } }}
+          >
+            {' '}
+            <Iconify
+              icon="eva:search-fill"
+              sx={{ color: 'text.disabled', width: 40, height: 25 }}
+            />
+          </Button>
+        </Grid>
+        <UserTableToolbar
+          numSelected={selected.length}
+          onKeyUp={handleSearch}
+          selected={selected}
+        />
+      </Box>
       <Scrollbar>
         <TableContainer sx={{ overflow: 'unset' }}>
           <Table sx={{ minWidth: 800 }}>
@@ -236,7 +261,7 @@ export default function UserPage() {
               </Grid>
             ) : (
               <TableBody>
-                {dataFiltered.map((row, i) => (
+                {scanData.map((row, i) => (
                   <UserTableRow
                     key={i}
                     id={i}
@@ -252,8 +277,6 @@ export default function UserPage() {
                     handleClick={(event) => handleClick(event, row.repository)}
                   />
                 ))}
-
-                {notFound && <TableNoData query={filterName} />}
               </TableBody>
             )}
           </Table>
