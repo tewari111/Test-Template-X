@@ -53,7 +53,7 @@ export default function UserPage() {
     const fetchScanData = async () => {
       try {
         const response = await fetch(
-          `${process.env.getOrgScan}?start_index=${startIndex}&end_index=${endIndex}`,
+          `${process.env.getOrgScan}?start_index=${startIndex}&end_index=${endIndex}&keyword=${keyword}`,
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -73,7 +73,7 @@ export default function UserPage() {
     };
 
     fetchScanData();
-  }, [page, rowsPerPage, startIndex, endIndex, accessToken]);
+  }, [page, rowsPerPage, startIndex, endIndex, accessToken, keyword]);
 
   // const totalReposPercent = (scanData.length / totalRepos.totalRepos) * 100 || 0;
 
