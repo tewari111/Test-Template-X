@@ -53,7 +53,7 @@ export default function UserPage() {
     const fetchScanData = async () => {
       try {
         const response = await fetch(
-          `${process.env.getOrgScan}?start_index=${startIndex}&end_index=${endIndex}&keyword=${keyword}`,
+          `${process.env.getOrgScan}?start_index=${startIndex}&end_index=${endIndex}`,
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -73,7 +73,7 @@ export default function UserPage() {
     };
 
     fetchScanData();
-  }, [page, rowsPerPage, startIndex, endIndex, accessToken, keyword]);
+  }, [page, rowsPerPage, startIndex, endIndex, accessToken]);
 
   // const totalReposPercent = (scanData.length / totalRepos.totalRepos) * 100 || 0;
 
@@ -135,7 +135,7 @@ export default function UserPage() {
 
   const handleSearch = async () => {
     setLoading(true);
-    const url = `${process.env.getOrgScan}?start_index=${startIndex}&end_index=${endIndex}&sort=${sort}&keyword=${keyword}`;
+    const url = `${process.env.getOrgScan}?start_index=0&end_index=20&sort=${sort}&keyword=${keyword}`;
     try {
       const response = await fetch(url, {
         headers: {
@@ -157,9 +157,11 @@ export default function UserPage() {
   const handleSearchChange = (e) => {
     const check = Boolean(e.target.value);
     if (check) {
+      setKeyword(e.target.value);
+    }
+    if (!check) {
       setScanData(scanData);
     }
-    setKeyword(e.target.value);
   };
   // const handleSearchDebounced = debounce(handleSearch, 2000);
   // console.log('sort..........', sort);
