@@ -3,9 +3,11 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+vite.config.js
+
 # C extensions
 *.so
-node_modules/*
+node_modules/
 # Distribution / packaging
 .Python
 build/
