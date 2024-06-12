@@ -37,14 +37,14 @@ const ShowSecrets = () => {
   const [repoName, setRepoName] = useState();
   const [visibility, setVisibility] = useState('hidden');
   const [secretValue, setSecret] = useState();
-  const { id, startIndex, endIndex } = useParams();
+  const { startIndex, endIndex, name } = useParams();
   const accessToken = localStorage.getItem('accessToken');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          `${process.env.getOrgScan}?start_index=${startIndex}&end_index=${endIndex}`,
+          `${process.env.getOrgScan}?start_index=${startIndex}&end_index=${endIndex}&keyword=${name}`,
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -61,7 +61,7 @@ const ShowSecrets = () => {
     };
 
     fetchData();
-  }, [startIndex, endIndex, accessToken]);
+  }, [startIndex, endIndex, name, accessToken]);
 
   const setWhitelistSecrets = async (result) => {
     console.log('result: ', result);
@@ -215,7 +215,7 @@ const ShowSecrets = () => {
           <>
             {secretsData.map((repository, index) => (
               <Grid item xs={12} md={12} key={index}>
-                {Number(id) === Number(index) && (
+                {Number(0) === Number(index) && (
                   <Grid>
                     <Typography
                       variant="h4"

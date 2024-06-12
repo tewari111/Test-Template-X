@@ -101,7 +101,7 @@ export default function UserTableRow({
           <Link underline="hover" sx={{ my: 3 }}>
             <Button
               onClick={() => {
-                navigate(`/secrets/${id}/${startIndex}/${endIndex}`);
+                navigate(`/secrets/${id}/${startIndex}/${endIndex}/${name}`);
               }}
             >
               {show}

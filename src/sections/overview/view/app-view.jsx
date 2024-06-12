@@ -129,10 +129,11 @@ export default function AppView() {
     const decodedData = JSON.parse(decodedSection);
 
     // Extract the username using object destructuring
-    const { username } = decodedData;
+    const { username, email } = decodedData;
 
     // Save the username in localStorage
     localStorage.setItem('username', username);
+    localStorage.setItem('email', email);
   } catch (error) {
     <ErrorPage errorMessage="Field to decode token" />;
   }

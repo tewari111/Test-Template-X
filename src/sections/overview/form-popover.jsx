@@ -68,7 +68,7 @@ export default function FormView( {open, handleClose, handleInputChange, formDat
           color="inherit"
           onClick={handleSubmit}
           >
-          Start Scan
+          
           </LoadingButton>
         </DialogContent>
       </Dialog>

@@ -35,7 +35,7 @@ export default function Router() {
       children: [
         { element: <IndexPage />, index: true },
         { path: 'repos', element: <UserPage /> },
-        { path: '/secrets/:id/:startIndex/:endIndex', element: <ShowSecrets /> },
+        { path: '/secrets/:id/:startIndex/:endIndex/:name', element: <ShowSecrets /> },
         { path: 'settings', element: <SettingPage /> },
         { path: 'set', element: <SettingPage /> },
         { path: 'whitelist', element: <WhitelistSecrets /> },
