@@ -292,7 +292,7 @@ function PrScanSecret() {
                   </Grid>
                   <Grid item xs={9} md={9} sx={{ display: 'flex' }}>
                     <a
-                      href={`http://localhost:3030/showNewSecret?date_of_scan=${item.date_of_scan}`}
+                      href={`http://localhost:5000/showNewSecret?date_of_scan=${item.date_of_scan}`}
                     >
                       go to secret file:
                     </a>
